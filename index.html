@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#05060f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="format-detection" content="telephone=no">
+<title>Game Hub · Зимний сезон</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{height:100%;overscroll-behavior:none}
+body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100vh;min-height:100dvh;display:flex;justify-content:center;align-items:center;padding:20px;color:#fff}
+
+/* ============ РАМКА ТЕЛЕФОНА ============ */
+.phone-frame{
+  width:375px;height:812px;
+  background:linear-gradient(160deg,#0a1030 0%,#0d1440 50%,#080c28 100%);
+  border-radius:46px;
+  box-shadow:0 0 0 2px rgba(147,197,253,.15),0 0 0 8px rgba(0,0,0,.6),0 40px 80px rgba(0,0,0,.7),0 0 100px rgba(59,130,246,.15);
+  position:relative;overflow:hidden;isolation:isolate;
+}
+@media (max-width:480px),(max-height:900px) and (orientation:portrait){
+  body{padding:0;align-items:stretch;min-height:100dvh;height:100dvh}
+  .phone-frame{width:100%;height:100dvh;min-height:100dvh;border-radius:0;box-shadow:none;padding-top:env(safe-area-inset-top)}
+  .panel-overlay{border-radius:0}
+  .panel{left:0;right:0;border-radius:28px 28px 0 0;padding-bottom:calc(40px + env(safe-area-inset-bottom));max-height:88dvh}
+  .screen{padding:24px 18px 240px;padding-top:calc(24px + env(safe-area-inset-top))}
+  .drift-buttons{bottom:calc(20px + env(safe-area-inset-bottom))}
+  .snowdrift{height:180px}
+}
+@media (max-width:360px){
+  .title-main{font-size:64px;letter-spacing:-2px}
+  .game-name{font-size:16px}
+}
+
+/* ============ АВРОРА ============ */
+.aurora{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.aurora-blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.55}
+.blob-1{width:280px;height:280px;background:radial-gradient(circle,#3b82f6 0%,transparent 70%);top:-80px;left:-80px;animation:float1 18s ease-in-out infinite}
+.blob-2{width:320px;height:320px;background:radial-gradient(circle,#8b5cf6 0%,transparent 70%);top:300px;right:-120px;animation:float2 22s ease-in-out infinite}
+.blob-3{width:260px;height:260px;background:radial-gradient(circle,#06b6d4 0%,transparent 70%);bottom:-60px;left:20%;animation:float3 20s ease-in-out infinite}
+@keyframes float1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,60px) scale(1.15)}}
+@keyframes float2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-50px,-40px) scale(1.1)}}
+@keyframes float3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(30px,-50px) scale(1.2)}}
+
+/* ============ СНЕГ ============ */
+.snow{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1}
+.snowflake{position:absolute;top:-20px;color:#fff;user-select:none;pointer-events:none;animation:fall linear infinite;opacity:0}
+@keyframes fall{0%{transform:translateY(-20px) translateX(0) rotate(0deg);opacity:0}10%{opacity:var(--opacity,.7)}90%{opacity:var(--opacity,.7)}100%{transform:translateY(880px) translateX(var(--drift,0)) rotate(360deg);opacity:0}}
+
+/* ============ ЭКРАН ============ */
+.screen{position:relative;z-index:3;height:100%;overflow-y:auto;padding:50px 18px 220px;display:flex;flex-direction:column;-webkit-overflow-scrolling:touch}
+.screen::-webkit-scrollbar{display:none}.screen{scrollbar-width:none}
+
+/* ============ ЗАГОЛОВОК ============ */
+.title-section{text-align:center;margin-bottom:32px;position:relative;z-index:3}
+.title-label{font-size:10px;text-transform:uppercase;letter-spacing:5px;color:rgba(147,197,253,.75);font-weight:700;margin-bottom:14px;position:relative;display:inline-block;padding:0 30px}
+.title-label::before,.title-label::after{content:'';position:absolute;top:50%;width:20px;height:1px;background:linear-gradient(90deg,transparent,rgba(147,197,253,.5),transparent)}
+.title-label::before{left:0}.title-label::after{right:0}
+.title-main{font-size:76px;font-weight:900;line-height:.9;letter-spacing:-3px;background:linear-gradient(110deg,#fff 0%,#bfdbfe 25%,#93c5fd 50%,#fff 75%,#bfdbfe 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shimmer 6s linear infinite;filter:drop-shadow(0 6px 40px rgba(147,197,253,.5));margin-bottom:16px}
+@keyframes shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+.title-sub{font-size:12px;font-weight:700;color:rgba(255,255,255,.65);letter-spacing:3px;text-transform:uppercase}
+
+/* ============ СПИСОК ИГР ============ */
+.games-list{display:flex;flex-direction:column;gap:0;margin-bottom:26px;position:relative;z-index:3}
+.game-row{display:flex;justify-content:space-between;align-items:center;padding:18px 4px;cursor:pointer;transition:.25s;text-decoration:none;color:inherit;border-bottom:1px solid rgba(147,197,253,.08);position:relative}
+.game-row:last-child{border-bottom:none}
+.game-row:not(.locked):hover{padding-left:10px}
+.game-row:not(.locked):hover .game-name{color:#93c5fd;text-shadow:0 0 20px rgba(147,197,253,.6)}
+.game-row:not(.locked):hover .game-icon{transform:scale(1.15) rotate(-5deg);filter:drop-shadow(0 0 15px rgba(147,197,253,.8))}
+.game-row:not(.locked):hover .game-play-btn{background:rgba(147,197,253,.25);border-color:rgba(147,197,253,.7);color:#fff;box-shadow:0 0 20px rgba(147,197,253,.4)}
+.game-row:not(.locked):active{padding-left:8px}
+.game-row.locked{opacity:.55;cursor:not-allowed}
+.game-left{display:flex;align-items:center;gap:14px}
+.game-icon{font-size:32px;line-height:1;transition:.3s;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5))}
+.game-info{display:flex;flex-direction:column;gap:4px}
+.game-name{font-size:20px;font-weight:900;color:#fff;letter-spacing:1px;text-transform:uppercase;transition:.25s}
+.game-desc{font-size:11px;font-weight:600;color:rgba(147,197,253,.7);letter-spacing:1.5px;text-transform:uppercase}
+.game-play-btn{font-size:10px;font-weight:800;color:rgba(147,197,253,.9);letter-spacing:1.5px;text-transform:uppercase;padding:7px 14px;background:rgba(147,197,253,.06);border:1px solid rgba(147,197,253,.3);border-radius:100px;transition:.25s;white-space:nowrap}
+.game-play-btn.coming{color:rgba(255,255,255,.5);border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.04);letter-spacing:2px}
+.game-badge{position:absolute;top:8px;right:12px;font-size:8px;font-weight:900;letter-spacing:1.5px;padding:3px 8px;background:linear-gradient(135deg,#ef4444,#f59e0b);color:#fff;border-radius:100px;box-shadow:0 4px 10px rgba(239,68,68,.5)}
+
+/* ============ ИКОНКИ ВНИЗУ ============ */
+.gifts-row{display:flex;justify-content:center;align-items:center;padding:0 18px;margin-bottom:20px;position:relative;z-index:3}
+.gift{font-size:80px;line-height:1;display:block;filter:drop-shadow(0 8px 12px rgba(0,0,0,.6)) drop-shadow(0 0 20px rgba(147,197,253,.5));animation:giftFloat 3s ease-in-out infinite;cursor:pointer;transition:.25s;user-select:none;position:relative}
+.gift:hover,.gift:active{filter:drop-shadow(0 12px 18px rgba(0,0,0,.7)) drop-shadow(0 0 30px rgba(147,197,253,.9));transform:scale(1.1)}
+@keyframes giftFloat{0%,100%{translate:0 0}50%{translate:0 -8px}}
+
+/* ============ СУГРОБЫ ============ */
+.snowdrift{position:absolute;bottom:0;left:0;right:0;height:200px;z-index:5;pointer-events:none;overflow:hidden}
+.snowdrift-svg{position:absolute;bottom:0;left:0;width:100%;height:100%;display:block;pointer-events:none}
+
+/* ============ КНОПКИ НА СНЕГУ ============ */
+.drift-buttons{position:absolute;bottom:35px;left:0;right:0;display:flex;justify-content:center;align-items:flex-end;gap:9px;padding:0 26px;z-index:50;pointer-events:none}
+.drift-btn{flex:1;max-width:96px;padding:13px 6px;background:rgba(255,255,255,.98);border-radius:16px;text-align:center;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease;box-shadow:0 8px 20px rgba(0,0,0,.35),0 0 0 1px rgba(147,197,253,.4),inset 0 -3px 0 rgba(147,197,253,.3);position:relative;user-select:none;pointer-events:auto;touch-action:manipulation;-webkit-user-select:none;-webkit-touch-callout:none}
+@media (hover:hover){
+  .drift-btn:hover{transform:translateY(-5px) scale(1.05);box-shadow:0 15px 30px rgba(59,130,246,.5),0 0 0 2px rgba(147,197,253,.8),inset 0 -3px 0 rgba(147,197,253,.5)}
+}
+.drift-btn:active{transform:translateY(-2px) scale(1.02)}
+.drift-btn-icon{font-size:15px;display:block;margin-bottom:4px;pointer-events:none}
+.drift-btn-title{font-size:11px;font-weight:900;color:#0a1030;letter-spacing:.3px;pointer-events:none}
+.drift-btn-main{max-width:108px;padding:14px 6px;background:linear-gradient(135deg,#3b82f6 0%,#8b5cf6 100%);box-shadow:0 10px 25px rgba(59,130,246,.55),0 0 0 2px rgba(255,255,255,.9),inset 0 -3px 0 rgba(0,0,0,.15),inset 0 2px 0 rgba(255,255,255,.25)}
+.drift-btn-main::before{content:'';position:absolute;inset:-5px;border-radius:22px;background:radial-gradient(circle,rgba(59,130,246,.35) 0%,transparent 70%);z-index:-1;animation:mainGlow 2.5s ease-in-out infinite;pointer-events:none}
+@keyframes mainGlow{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:.9;transform:scale(1.1)}}
+.drift-btn-main:active{transform:translateY(-2px) scale(1.02)}
+.drift-btn-main .drift-btn-icon{font-size:17px}
+.drift-btn-main .drift-btn-title{color:#fff;font-size:12px}
+
+/* ============ ПАНЕЛИ ============ */
+.panel-overlay{position:absolute;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:100;opacity:0;visibility:hidden;transition:.3s;border-radius:46px}
+.panel-overlay.active{opacity:1;visibility:visible}
+.panel{position:absolute;left:16px;right:16px;bottom:0;max-height:85%;background:linear-gradient(180deg,#101838 0%,#0a1030 100%);border-radius:32px 32px 46px 46px;border-top:1px solid rgba(147,197,253,.3);padding:20px 20px 40px;z-index:101;transform:translateY(100%);transition:transform .4s cubic-bezier(.34,1.2,.64,1);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.panel.active{transform:translateY(0)}
+.panel::-webkit-scrollbar{display:none}.panel{scrollbar-width:none}
+.panel-handle{width:40px;height:4px;background:rgba(147,197,253,.3);border-radius:2px;margin:0 auto 18px;cursor:grab;touch-action:none}
+.panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.panel-title{font-size:16px;font-weight:900;letter-spacing:1px;color:#fff}
+.panel-close{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(147,197,253,.2);display:flex;justify-content:center;align-items:center;cursor:pointer;font-size:14px;color:rgba(255,255,255,.7);transition:.2s;touch-action:manipulation}
+.panel-close:hover{background:rgba(239,68,68,.3);border-color:rgba(239,68,68,.5);color:#fff}
+
+/* FAQ */
+.faq-item{background:rgba(147,197,253,.06);border:1px solid rgba(147,197,253,.12);border-radius:18px;padding:16px 18px;margin-bottom:10px;cursor:pointer;transition:.25s;touch-action:manipulation}
+.faq-item:hover{background:rgba(147,197,253,.1);border-color:rgba(147,197,253,.3)}
+.faq-question{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:13px;font-weight:800;color:#fff;line-height:1.4;pointer-events:none}
+.faq-arrow{color:rgba(147,197,253,.7);font-size:16px;transition:transform .3s;flex-shrink:0}
+.faq-item.open .faq-arrow{transform:rotate(180deg)}
+.faq-answer{max-height:0;overflow:hidden;transition:max-height .3s ease,margin-top .3s ease;font-size:12.5px;color:rgba(255,255,255,.65);line-height:1.5}
+.faq-item.open .faq-answer{max-height:300px;margin-top:12px}
+
+/* Настройки */
+.setting-row{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:rgba(147,197,253,.06);border:1px solid rgba(147,197,253,.12);border-radius:16px;margin-bottom:10px}
+.setting-name{font-size:13px;font-weight:800;color:#fff;display:flex;align-items:center;gap:10px}
+.setting-name .ico{font-size:18px}
+.switch{position:relative;width:48px;height:26px;background:rgba(255,255,255,.1);border-radius:100px;cursor:pointer;transition:.25s;border:1px solid rgba(147,197,253,.2)}
+.switch.on{background:linear-gradient(135deg,#3b82f6,#8b5cf6);border-color:transparent}
+.switch::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.25s;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.switch.on::after{left:24px}
+.setting-value{font-size:12px;font-weight:900;color:#93c5fd;letter-spacing:1px;padding:6px 12px;background:rgba(147,197,253,.1);border:1px solid rgba(147,197,253,.3);border-radius:10px;cursor:pointer}
+.setting-value:active{transform:scale(.95)}
+
+/* Обновления */
+.updates-intro{font-size:12px;color:rgba(255,255,255,.6);line-height:1.5;text-align:center;margin-bottom:20px;padding:0 6px}
+.update-item{position:relative;padding:16px 16px 16px 44px;background:rgba(147,197,253,.05);border:1px solid rgba(147,197,253,.12);border-radius:18px;margin-bottom:12px;transition:.25s}
+.update-item:hover{background:rgba(147,197,253,.08);border-color:rgba(147,197,253,.25)}
+.update-item::before{content:'';position:absolute;left:16px;top:22px;width:14px;height:14px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#8b5cf6);box-shadow:0 0 0 3px rgba(59,130,246,.2),0 0 15px rgba(59,130,246,.6);z-index:2}
+.update-item:not(:last-child)::after{content:'';position:absolute;left:22.5px;top:36px;bottom:-12px;width:2px;background:linear-gradient(180deg,rgba(147,197,253,.4),rgba(147,197,253,.05));z-index:1}
+.update-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px}
+.update-version{font-size:15px;font-weight:900;color:#fff;letter-spacing:1px;display:flex;align-items:center;gap:8px}
+.update-version .dot{color:#93c5fd}
+.update-date{font-size:10px;font-weight:700;color:rgba(147,197,253,.7);letter-spacing:1.5px;text-transform:uppercase}
+.update-tag{display:inline-block;font-size:9px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:100px;margin-bottom:10px}
+.tag-new{background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.4)}
+.tag-update{background:rgba(59,130,246,.15);color:#93c5fd;border:1px solid rgba(59,130,246,.4)}
+.tag-fix{background:rgba(250,204,21,.15);color:#facc15;border:1px solid rgba(250,204,21,.4)}
+.update-list{list-style:none;padding:0;margin:0}
+.update-list li{position:relative;font-size:12.5px;color:rgba(255,255,255,.72);line-height:1.55;padding-left:16px;margin-bottom:5px}
+.update-list li::before{content:'✦';position:absolute;left:0;top:0;color:#93c5fd;font-size:10px;line-height:1.55}
+.update-list li strong{color:#facc15;font-weight:800}
+.update-list li em{color:#93c5fd;font-style:normal;font-weight:700}
+
+/* ============ АНИМАЦИЯ ПОВОРОТА ПЕРЕД ИГРОЙ ============ */
+#rotate-overlay{
+  position:absolute;inset:0;z-index:999;
+  background:linear-gradient(160deg,#0a1030,#1a2050,#05060f);
+  display:none;flex-direction:column;justify-content:center;align-items:center;
+  color:#fff;text-align:center;padding:30px;
+  opacity:0;transition:opacity .3s;
+}
+#rotate-overlay.show{display:flex;opacity:1}
+#rotate-overlay.fade-out{opacity:0}
+.rotate-phone-icon{
+  font-size:90px;margin-bottom:30px;
+  animation:rotatePhoneAnim 2s ease-in-out infinite;
+  filter:drop-shadow(0 0 30px rgba(147,197,253,.7));
+  transform-origin:center;
+}
+@keyframes rotatePhoneAnim{
+  0%,20%{transform:rotate(0deg)}
+  50%,70%{transform:rotate(-90deg)}
+  100%{transform:rotate(-90deg)}
+}
+.rotate-loading-title{
+  font-size:24px;font-weight:900;letter-spacing:3px;margin-bottom:14px;
+  background:linear-gradient(110deg,#fff,#93c5fd);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  text-transform:uppercase;
+}
+.rotate-loading-sub{font-size:13px;color:rgba(255,255,255,.7);line-height:1.6;max-width:280px;margin-bottom:32px}
+.rotate-loading-sub strong{color:#93c5fd;font-weight:800}
+
+/* Прогресс-бар загрузки */
+.rotate-progress{
+  width:220px;height:6px;
+  background:rgba(255,255,255,.1);
+  border-radius:100px;overflow:hidden;
+  margin-top:10px;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.5);
+}
+.rotate-progress-fill{
+  height:100%;width:0%;
+  background:linear-gradient(90deg,#3b82f6,#8b5cf6,#06b6d4);
+  background-size:200% 100%;
+  animation:progressShine 1.5s linear infinite;
+  border-radius:100px;
+  transition:width .15s linear;
+}
+@keyframes progressShine{
+  0%{background-position:0% 50%}
+  100%{background-position:200% 50%}
+}
+.rotate-hint-bottom{
+  position:absolute;bottom:30px;left:0;right:0;
+  text-align:center;font-size:11px;color:rgba(147,197,253,.6);
+  letter-spacing:2px;text-transform:uppercase;font-weight:700;
+}
+@media (max-height:500px){
+  .rotate-phone-icon{font-size:70px;margin-bottom:20px}
+  .rotate-loading-title{font-size:20px;margin-bottom:10px}
+  .rotate-loading-sub{font-size:12px;margin-bottom:20px}
+}
+</style>
+</head>
+<body>
+
+<div class="phone-frame">
+<div class="aurora"><div class="aurora-blob blob-1"></div><div class="aurora-blob blob-2"></div><div class="aurora-blob blob-3"></div></div>
+<div class="snow" id="snow"></div>
+
+<div class="screen">
+    <div class="title-section">
+        <div class="title-label">Зимний сезон</div>
+        <div class="title-main">ИГРЫ</div>
+        <div class="title-sub">Выбери и играй</div>
+    </div>
+
+    <div class="games-list">
+        <!-- 🍄 Mario — играбельная -->
+        <div class="game-row" onclick="launchGame('mario')">
+            <div class="game-left">
+                <div class="game-icon">🍄</div>
+                <div class="game-info">
+                    <div class="game-name">Mario Run</div>
+                    <div class="game-desc">Платформер</div>
+                </div>
+            </div>
+            <div class="game-play-btn">Играть</div>
+        </div>
+
+        <!-- Скоро 1 -->
+        <div class="game-row locked">
+            <div class="game-left">
+                <div class="game-icon">💨</div>
+                <div class="game-info">
+                    <div class="game-name">Скоро</div>
+                    <div class="game-desc">В разработке</div>
+                </div>
+            </div>
+            <div class="game-play-btn coming">Скоро</div>
+        </div>
+
+        <!-- Скоро 2 -->
+        <div class="game-row locked">
+            <div class="game-left">
+                <div class="game-icon">🏃</div>
+                <div class="game-info">
+                    <div class="game-name">Скоро</div>
+                    <div class="game-desc">В разработке</div>
+                </div>
+            </div>
+            <div class="game-play-btn coming">Скоро</div>
+        </div>
+
+        <!-- Скоро 3 -->
+        <div class="game-row locked">
+            <div class="game-left">
+                <div class="game-icon">🚀</div>
+                <div class="game-info">
+                    <div class="game-name">Скоро</div>
+                    <div class="game-desc">В разработке</div>
+                </div>
+            </div>
+            <div class="game-play-btn coming">Скоро</div>
+        </div>
+    </div>
+
+    <div class="gifts-row">
+        <div class="gift" onclick="openPanel('updates')">
+            📢
+        </div>
+    </div>
+</div>
+
+<div class="snowdrift">
+<svg class="snowdrift-svg" viewBox="0 0 375 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="snowGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff"/><stop offset="60%" stop-color="#e0ecff"/><stop offset="100%" stop-color="#bfdbfe"/></linearGradient>
+<linearGradient id="snowGrad2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff"/><stop offset="100%" stop-color="#dbeafe"/></linearGradient>
+</defs>
+<path d="M0,100 C60,60 120,90 180,70 C240,50 300,80 375,60 L375,200 L0,200 Z" fill="url(#snowGrad2)" opacity=".7"/>
+<path d="M0,120 C50,95 110,130 180,110 C250,90 310,120 375,105 L375,200 L0,200 Z" fill="url(#snowGrad)"/>
+</svg>
+</div>
+
+<div class="drift-buttons">
+    <div class="drift-btn" onclick="openPanel('settings')"><span class="drift-btn-icon">⚙️</span><div class="drift-btn-title">Настройки</div></div>
+    <div class="drift-btn drift-btn-main" onclick="launchGame('mario')"><span class="drift-btn-icon">▶</span><div class="drift-btn-title">Играть</div></div>
+    <div class="drift-btn" onclick="openPanel('faq')"><span class="drift-btn-icon">❓</span><div class="drift-btn-title">FAQ</div></div>
+</div>
+
+<!-- ===== ПАНЕЛЬ: НАСТРОЙКИ ===== -->
+<div class="panel-overlay" id="overlay-settings" onclick="closePanel('settings')"></div>
+<div class="panel" id="panel-settings">
+    <div class="panel-handle"></div>
+    <div class="panel-header"><div class="panel-title">НАСТРОЙКИ</div><div class="panel-close" onclick="closePanel('settings')">✕</div></div>
+
+    <div class="setting-row">
+        <div class="setting-name"><span class="ico">🔊</span>Звук</div>
+        <div class="switch on" onclick="toggleSwitch(this)"></div>
+    </div>
+    <div class="setting-row">
+        <div class="setting-name"><span class="ico">🎵</span>Музыка</div>
+        <div class="switch on" onclick="toggleSwitch(this)"></div>
+    </div>
+    <div class="setting-row">
+        <div class="setting-name"><span class="ico">📳</span>Вибрация</div>
+        <div class="switch on" onclick="toggleSwitch(this)"></div>
+    </div>
+    <div class="setting-row">
+        <div class="setting-name"><span class="ico">🎮</span>Управление</div>
+        <div class="setting-value" onclick="cycleControl(this)">Свайпы</div>
+    </div>
+    <div class="setting-row">
+        <div class="setting-name"><span class="ico">🌐</span>Язык</div>
+        <div class="setting-value">РУС</div>
+    </div>
+</div>
+
+<!-- ===== ПАНЕЛЬ: FAQ ===== -->
+<div class="panel-overlay" id="overlay-faq" onclick="closePanel('faq')"></div>
+<div class="panel" id="panel-faq">
+    <div class="panel-handle"></div>
+    <div class="panel-header"><div class="panel-title">ЧАСТЫЕ ВОПРОСЫ</div><div class="panel-close" onclick="closePanel('faq')">✕</div></div>
+    <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Как играть?</span><span class="faq-arrow">▼</span></div><div class="faq-answer">Выбери игру из списка и нажми «Играть». Для игр нужен горизонтальный режим телефона.</div></div>
+    <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Работает без интернета?</span><span class="faq-arrow">▼</span></div><div class="faq-answer">Да, все игры работают офлайн. Прогресс сохраняется в браузере.</div></div>
+    <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Почему не открывается игра?</span><span class="faq-arrow">▼</span></div><div class="faq-answer">Проверь, что у тебя есть файл игры (например mario.html) в той же папке, что и меню. Игры «Скоро» ещё не вышли.</div></div>
+    <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Будут новые игры?</span><span class="faq-arrow">▼</span></div><div class="faq-answer">Да! Следи за разделом 📢 Обновления.</div></div>
+    <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Можно играть с друзьями?</span><span class="faq-arrow">▼</span></div><div class="faq-answer">Пока нет, но мультиплеер в планах.</div></div>
+</div>
+
+<!-- ===== ПАНЕЛЬ: ОБНОВЛЕНИЯ ===== -->
+<div class="panel-overlay" id="overlay-updates" onclick="closePanel('updates')"></div>
+<div class="panel" id="panel-updates">
+    <div class="panel-handle"></div>
+    <div class="panel-header"><div class="panel-title">ОБНОВЛЕНИЯ</div><div class="panel-close" onclick="closePanel('updates')">✕</div></div>
+
+    <div class="updates-intro">Что нового в Game Hub 🎮</div>
+
+    <div class="update-item">
+        <div class="update-head">
+            <div class="update-version">v1.2 <span class="dot">·</span> Mario</div>
+            <div class="update-date">6 окт 2026</div>
+        </div>
+        <div class="update-tag tag-new">НОВОЕ</div>
+        <ul class="update-list">
+            <li>Запущена игра <em>Mario Run</em> 🍄</li>
+            <li>Анимация поворота телефона перед запуском</li>
+            <li>В меню только 4 игры — 3 пока в разработке</li>
+        </ul>
+    </div>
+
+    <div class="update-item">
+        <div class="update-head">
+            <div class="update-version">v1.1 <span class="dot">·</span> Зимний сезон</div>
+            <div class="update-date">6 окт 2026</div>
+        </div>
+        <div class="update-tag tag-update">ОБНОВЛЕНИЕ</div>
+        <ul class="update-list">
+            <li>Добавлен раздел <em>«Обновления»</em></li>
+            <li>Иконка 📢 на главном экране</li>
+            <li>Панель настроек звука и вибрации</li>
+        </ul>
+    </div>
+
+    <div class="update-item">
+        <div class="update-head">
+            <div class="update-version">v1.0 <span class="dot">·</span> Запуск</div>
+            <div class="update-date">5 окт 2026</div>
+        </div>
+        <div class="update-tag tag-fix">СТАРТ</div>
+        <ul class="update-list">
+            <li>Первый релиз <em>Game Hub</em> 🎉</li>
+            <li>Зимний дизайн: аврора, снег, сугробы</li>
+        </ul>
+    </div>
+
+    <div class="update-item">
+        <div class="update-head">
+            <div class="update-version">🔮 Скоро</div>
+        </div>
+        <div class="update-tag tag-fix">В РАЗРАБОТКЕ</div>
+        <ul class="update-list">
+            <li>3 новые игры</li>
+            <li>Таблица рекордов</li>
+            <li>Мультиплеер</li>
+        </ul>
+    </div>
+</div>
+
+<!-- ===== ОВЕРЛЕЙ АНИМАЦИИ ПОВОРОТА ===== -->
+<div id="rotate-overlay">
+    <div class="rotate-phone-icon">📱</div>
+    <div class="rotate-loading-title" id="rotate-title">ПОВЕРНИ ТЕЛЕФОН</div>
+    <div class="rotate-loading-sub" id="rotate-sub">Для игры нужен <strong>горизонтальный режим</strong>.<br>Поверни телефон на 90° — запуск через 5 секунд.</div>
+    <div class="rotate-progress"><div class="rotate-progress-fill" id="rotate-progress"></div></div>
+    <div class="rotate-hint-bottom">LANDSCAPE MODE</div>
+</div>
+
+</div>
+
+<script>
+/* ============ ИГРЫ ============ */
+const GAMES = {
+  mario:  { file: 'mario.html',  name: 'Mario Run' }
+};
+
+/* ============ СНЕГ ============ */
+(function(){
+  const c = document.getElementById('snow');
+  const f = ['❄','❅','❆','•','·'];
+  for(let i = 0; i < 35; i++){
+    const el = document.createElement('div');
+    el.className = 'snowflake';
+    el.textContent = f[Math.floor(Math.random() * f.length)];
+    el.style.left = Math.random() * 100 + '%';
+    el.style.fontSize = (Math.random() * 10 + 8) + 'px';
+    el.style.animationDuration = (Math.random() * 8 + 6) + 's';
+    el.style.animationDelay = (Math.random() * 8) + 's';
+    el.style.setProperty('--opacity', (Math.random() * 0.5 + 0.3).toFixed(2));
+    el.style.setProperty('--drift', (Math.random() * 80 - 40) + 'px');
+    c.appendChild(el);
+  }
+})();
+
+/* ============ ПАНЕЛИ ============ */
+function openPanel(name){
+  document.getElementById('overlay-' + name).classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+  if(navigator.vibrate) navigator.vibrate(10);
+}
+function closePanel(name){
+  document.getElementById('overlay-' + name).classList.remove('active');
+  document.getElementById('panel-' + name).classList.remove('active');
+}
+
+/* ============ ЗАПУСК ИГРЫ С АНИМАЦИЕЙ ПОВОРОТА ============ */
+function launchGame(id){
+  const game = GAMES[id];
+  if(!game) return;
+
+  // Вибрация
+  if(navigator.vibrate) navigator.vibrate(30);
+
+  // Показываем оверлей
+  const overlay = document.getElementById('rotate-overlay');
+  overlay.classList.remove('fade-out');
+  overlay.classList.add('show');
+
+  // Прогресс-бар на 5 секунд
+  const progress = document.getElementById('rotate-progress');
+  progress.style.width = '0%';
+
+  const duration = 5000; // 5 секунд
+  const start = performance.now();
+  let cancelled = false;
+
+  function tickProgress(now){
+    if(cancelled) return;
+    const elapsed = now - start;
+    const pct = Math.min(100, (elapsed / duration) * 100);
+    progress.style.width = pct + '%';
+    if(elapsed < duration){
+      requestAnimationFrame(tickProgress);
+    }
+  }
+  requestAnimationFrame(tickProgress);
+
+  // Через 5 сек — переход
+  setTimeout(() => {
+    cancelled = true;
+    overlay.classList.add('fade-out');
+    // Небольшая задержка на затухание, потом переход
+    setTimeout(() => {
+      window.location.href = game.file;
+    }, 300);
+  }, duration);
+}
+
+/* ============ НАСТРОЙКИ ============ */
+function toggleSwitch(el){
+  el.classList.toggle('on');
+  if(navigator.vibrate) navigator.vibrate(10);
+}
+function cycleControl(el){
+  const modes = ['Свайпы','Тапы','Кнопки'];
+  const i = modes.indexOf(el.textContent);
+  el.textContent = modes[(i + 1) % modes.length];
+  if(navigator.vibrate) navigator.vibrate(10);
+}
+
+/* ============ СВАЙП ВНИЗ ПО ПАНЕЛИ ============ */
+(function(){
+  document.querySelectorAll('.panel').forEach(panel => {
+    let startY = 0, deltaY = 0, dragging = false;
+    panel.addEventListener('touchstart', e => {
+      if(panel.scrollTop > 0) return;
+      startY = e.touches[0].clientY;
+      deltaY = 0;
+      dragging = true;
+      panel.style.transition = 'none';
+    }, {passive:true});
+    panel.addEventListener('touchmove', e => {
+      if(!dragging) return;
+      deltaY = e.touches[0].clientY - startY;
+      if(deltaY < 0) deltaY = 0;
+      panel.style.transform = `translateY(${deltaY}px)`;
+    }, {passive:true});
+    panel.addEventListener('touchend', () => {
+      if(!dragging) return;
+      dragging = false;
+      panel.style.transition = '';
+      panel.style.transform = '';
+      if(deltaY > 80){
+        const name = panel.id.replace('panel-','');
+        closePanel(name);
+      }
+    });
+    panel.addEventListener('touchcancel', () => {
+      if(!dragging) return;
+      dragging = false;
+      panel.style.transition = '';
+      panel.style.transform = '';
+    });
+  });
+})();
+
+/* ============ ЗАПРЕТ ДВОЙНОГО ТАПА ============ */
+let lastTouchEnd = 0;
+document.addEventListener('touchend', (e) => {
+  const now = Date.now();
+  if(now - lastTouchEnd <= 300) e.preventDefault();
+  lastTouchEnd = now;
+}, {passive:false});
+document.addEventListener('contextmenu', e => e.preventDefault());
+</script>
+
+</body>
+</html>
