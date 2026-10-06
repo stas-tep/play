@@ -38,8 +38,7 @@ body{position:fixed;inset:0}
 .ctrl.active{transform:scale(.88);background:rgba(255,255,255,.4)}
 #btn-left{left:calc(16px + env(safe-area-inset-left));bottom:calc(16px + env(safe-area-inset-bottom))}
 #btn-right{left:calc(100px + env(safe-area-inset-left));bottom:calc(16px + env(safe-area-inset-bottom))}
-#btn-run{right:calc(110px + env(safe-area-inset-right));bottom:calc(16px + env(safe-area-inset-bottom));width:62px;height:62px;font-size:13px;background:rgba(59,130,246,.4);border-color:rgba(147,197,253,.7)}
-#btn-jump{right:calc(16px + env(safe-area-inset-right));bottom:calc(16px + env(safe-area-inset-bottom));width:86px;height:86px;font-size:30px;background:rgba(239,68,68,.45);border-color:rgba(248,113,113,.8)}
+#btn-jump{right:calc(16px + env(safe-area-inset-right));bottom:calc(16px + env(safe-area-inset-bottom));width:96px;height:96px;font-size:42px;background:rgba(239,68,68,.5);border-color:rgba(248,113,113,.9);font-weight:900;line-height:1}
 #kb-hints{position:absolute;bottom:calc(12px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:25;display:flex;gap:12px;color:rgba(255,255,255,.7);font-size:10px;font-family:'Courier New',monospace;pointer-events:none;opacity:0;transition:opacity .5s;flex-wrap:wrap;justify-content:center}
 #kb-hints.show{opacity:1}
 #kb-hints .k{display:inline-block;padding:2px 5px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.3);border-radius:4px;margin-right:2px;font-weight:700;color:#fff}
@@ -54,8 +53,7 @@ body{position:fixed;inset:0}
 .msg-buttons{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 @media (max-height:420px){
   .ctrl{width:60px;height:60px;font-size:22px}
-  #btn-run{width:54px;height:54px}
-  #btn-jump{width:76px;height:76px;font-size:26px}
+  #btn-jump{width:80px;height:80px;font-size:34px}
   .hud-btn{width:34px;height:34px;font-size:14px}
   .heart{width:18px;height:18px}
 }
@@ -89,14 +87,12 @@ body{position:fixed;inset:0}
 <div id="controls">
   <div class="ctrl" id="btn-left">◀</div>
   <div class="ctrl" id="btn-right">▶</div>
-  <div class="ctrl" id="btn-run">B</div>
-  <div class="ctrl" id="btn-jump">A</div>
+  <div class="ctrl" id="btn-jump">▲</div>
 </div>
 
 <div id="kb-hints">
   <span><span class="k">←</span><span class="k">→</span>ходьба</span>
   <span><span class="k">SPACE</span>прыжок</span>
-  <span><span class="k">SHIFT</span>бег</span>
   <span><span class="k">R</span>рестарт</span>
 </div>
 
@@ -118,7 +114,6 @@ const GRAVITY = 2400;
 const JUMP_VELOCITY = -780;
 const MAX_FALL = 1300;
 const WALK_SPEED = 240;
-const RUN_SPEED = 380;
 const ACCEL = 2200;
 const FRICTION = 1900;
 const AIR_ACCEL = 1300;
@@ -139,7 +134,7 @@ const C = {
 };
 
 const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d', { alpha: false });
+const ctx = canvas.getContext('2d', {alpha:false});
 let level = null;
 let player = null;
 let enemies = [];
@@ -155,13 +150,12 @@ let paused = false;
 let lastTime = 0;
 let currentDpr = 1;
 const particles = [];
-const keys = {left:false, right:false, jump:false, run:false};
+const keys = {left:false, right:false, jump:false};
 const jumpBuffer = {pressed:false};
 
-// Анимация финала
 const finish = {
   active: false,
-  phase: 'none', // 'slide' | 'walk' | 'enter'
+  phase: 'none',
   timer: 0,
   slideSpeed: 200,
   walkSpeed: 100
@@ -171,7 +165,7 @@ const finish = {
 let audioCtx = null;
 function initAudio(){
   if(!audioCtx){
-    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){}
+    try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){}
   }
   if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
 }
@@ -382,7 +376,8 @@ class Player {
     this.invuln = 0;
     this.jumpHeld = false;
     this.star = 0;
-    this.frozen = false; // во время анимации финала
+    this.frozen = false;
+    this.hidden = false;
   }
   makeBig(){
     if(this.isBig) return;
@@ -410,12 +405,10 @@ class Player {
       return;
     }
     if(this.frozen){
-      // При финальной анимации — только гравитация, без управления
       this.vy += GRAVITY * dt;
       if(this.vy > MAX_FALL) this.vy = MAX_FALL;
       this.y += this.vy * dt;
       this.resolveY();
-      // Ходьба
       if(finish.phase === 'walk'){
         this.vx = finish.walkSpeed;
         this.x += this.vx * dt;
@@ -423,7 +416,6 @@ class Player {
         this.walkTimer += dt * 4;
         if(this.walkTimer > 0.12){ this.walkTimer = 0; this.walkFrame = (this.walkFrame + 1) % 4; }
       }
-      // Спуск по флагу
       if(finish.phase === 'slide'){
         this.y += finish.slideSpeed * dt;
         this.state = 'slide';
@@ -438,7 +430,7 @@ class Player {
       if(this.star <= 0){ this.star = 0; Music.tempo(1); }
     }
 
-    const maxSpeed = keys.run ? RUN_SPEED : WALK_SPEED;
+    const maxSpeed = WALK_SPEED;
     const accel = this.onGround ? ACCEL : AIR_ACCEL;
 
     if(keys.left && !keys.right){
@@ -607,10 +599,7 @@ class Player {
     } else if(this.state === 'skid'){ legL = -2; legR = 2; }
     else if(this.state === 'jump'){ legL = -2; legR = 3; armOff = -3; }
     else if(this.state === 'fall'){ legL = 2; legR = -2; armOff = 2; }
-    else if(this.state === 'slide'){
-      // Спуск по флагу — руки вверх, ноги вместе
-      legL = 0; legR = 0; armOff = -4;
-    }
+    else if(this.state === 'slide'){ legL = 0; legR = 0; armOff = -4; }
     ctx.translate(0, bob);
 
     let capRed = '#E52521';
@@ -655,7 +644,6 @@ class Player {
     ctx.fillRect(-2.2, -7.5, 1, 1);
     ctx.fillRect(1.2, -7.5, 1, 1);
 
-    // Руки — при slide подняты вверх
     const armY = this.state === 'slide' ? -12 : -8.5;
     ctx.fillStyle = shirtRed;
     ctx.fillRect(-5, armY + armOff*0.3, 2, 3);
@@ -724,7 +712,7 @@ class Enemy {
     this.vy = 0;
     this.type = type;
     this.alive = true;
-    this.dying = false; // НОВОЕ: помечаем как «умирающий» — не участвует в столкновениях
+    this.dying = false;
     this.squished = 0;
     this.onGround = false;
     this.walkTimer = 0;
@@ -794,7 +782,6 @@ class Enemy {
       }
     }
   }
-  // Проверка: враг ещё «живой контакт»
   isTouchable(){
     return this.alive && !this.dying && this.squished <= 0 && this.deathTimer <= 0;
   }
@@ -804,11 +791,11 @@ class Enemy {
       sfx.stomp(); return;
     }
     if(this.shell){
-      this.dying = true; // помечаем
+      this.dying = true;
       this.deathTimer = 0.001; this.vx = 0; this.vy = -300;
       sfx.stomp(); return;
     }
-    this.dying = true; // помечаем
+    this.dying = true;
     this.squished = 0.5; this.h = 12; this.y += 18;
     sfx.stomp();
   }
@@ -1430,29 +1417,24 @@ function drawCoin(cx, cy){
   ctx.restore();
 }
 
-// ============ ФЛАГ (с анимацией опускания) ============
-let flagOffset = 0; // насколько флаг опущен (0 = верх, 1 = низ)
+// ============ ФЛАГ ============
+let flagOffset = 0;
 
 function drawFlag(tileX){
   const groundY = 13 * TILE;
   const poleH = 9 * TILE;
   const poleX = tileX * TILE;
   const poleY = groundY - poleH;
-
-  // Шест
   ctx.fillStyle = C.flagPole;
   ctx.fillRect(poleX, poleY, 6, poleH);
   ctx.strokeStyle = C.brickDark; ctx.lineWidth = 1.5;
   ctx.strokeRect(poleX, poleY, 6, poleH);
-
-  // Шарик
   ctx.fillStyle = C.flagTop;
   ctx.beginPath(); ctx.arc(poleX + 3, poleY - 6, 10, 0, Math.PI * 2); ctx.fill();
   ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.stroke();
   ctx.fillStyle = '#58D854';
   ctx.beginPath(); ctx.arc(poleX - 1, poleY - 10, 3, 0, Math.PI * 2); ctx.fill();
 
-  // Флаг — позиция зависит от flagOffset (0 = вверху, 1 = внизу)
   const flagTop = poleY + 30 + flagOffset * (poleH - 100);
   ctx.fillStyle = C.flagCloth;
   ctx.beginPath();
@@ -1464,7 +1446,7 @@ function drawFlag(tileX){
 }
 
 // ============ ЗАМОК ============
-let castleFlagRaised = false; // поднят ли флаг над замком
+let castleFlagRaised = false;
 let castleFlagProgress = 0;
 
 function drawCastle(tileX, tileY){
@@ -1525,15 +1507,12 @@ function drawCastle(tileX, tileY){
     ctx.strokeRect(wx, wy, TILE * 0.7, TILE);
   });
 
-  // Флаг над замком — поднимается в финале
   const fx = x + W / 2;
   const fy = y - TILE * 0.5;
   ctx.fillStyle = C.flagPole;
   ctx.fillRect(fx - 2, fy - TILE * 2, 4, TILE * 2.5);
 
-  // Флаг на шесте — только если поднят
   if(castleFlagRaised){
-    const flagH = TILE * (1 + castleFlagProgress);
     ctx.fillStyle = C.flagCloth;
     ctx.beginPath();
     ctx.moveTo(fx + 2, fy - TILE * 2);
@@ -1554,7 +1533,6 @@ function startFinishAnimation(){
   player.vx = 0;
   player.vy = 0;
   player.facing = 1;
-  // Прижимаемся к шесту
   player.x = level.flagX * TILE - 8;
   flagOffset = 0;
   sfx.flag();
@@ -1565,11 +1543,9 @@ function updateFinishAnimation(dt){
   finish.timer += dt;
 
   if(finish.phase === 'slide'){
-    // Марио скользит вниз по шесту
     const groundY = 13 * TILE;
     const targetY = groundY - player.h;
     player.y += finish.slideSpeed * dt;
-    // Опускаем флаг
     flagOffset = Math.min(1, flagOffset + dt * 1.5);
     if(player.y >= targetY){
       player.y = targetY;
@@ -1579,7 +1555,6 @@ function updateFinishAnimation(dt){
     }
   }
   else if(finish.phase === 'walk'){
-    // Марио идёт вправо к замку
     const castleDoorX = level.castleX * TILE + 4 * TILE - TILE * 0.75;
     if(player.x >= castleDoorX){
       finish.phase = 'enter';
@@ -1588,10 +1563,8 @@ function updateFinishAnimation(dt){
     }
   }
   else if(finish.phase === 'enter'){
-    // Марио входит в дверь (исчезает)
-    player.vy += 100 * dt; // прижимаем к земле
+    player.vy += 100 * dt;
     if(finish.timer > 0.5){
-      // Убираем игрока и поднимаем флаг над замком
       player.hidden = true;
       if(!castleFlagRaised){
         castleFlagRaised = true;
@@ -1613,7 +1586,6 @@ function updateFinishAnimation(dt){
 
 // ============ ИНИЦИАЛИЗАЦИЯ ============
 function resize(){
-  // DPR 1.5 для мобильных, чтобы не тормозило
   const baseDpr = Math.min(window.devicePixelRatio || 1, 1.5);
   currentDpr = baseDpr;
   canvas.width = Math.floor(window.innerWidth * currentDpr);
@@ -1624,7 +1596,6 @@ function resize(){
   ctx.imageSmoothingEnabled = false;
 }
 
-// Автооптимизация при низком FPS
 let frameCount = 0, lastFpsCheck = 0, lowFpsFrames = 0;
 function checkPerformance(t){
   frameCount++;
@@ -1739,11 +1710,9 @@ function getZoom(){ return canvas.clientWidth / (16 * TILE); }
 function update(dt){
   if(gameOver || paused) return;
 
-  // Финальная анимация — блокирует обычное управление
   if(finish.active){
     updateFinishAnimation(dt);
     player.update(dt);
-    // Камера
     const zoom = getZoom();
     const viewW = canvas.clientWidth / zoom;
     const targetX = player.x + player.w / 2 - viewW * 0.4;
@@ -1780,7 +1749,6 @@ function update(dt){
     const e = enemies[i];
     if(!e.alive){ enemies.splice(i, 1); continue; }
     e.update(dt);
-    // ИСПРАВЛЕНИЕ БАГА: не трогаем уже умирающих врагов
     if(!e.isTouchable()) continue;
     if(player.dead) continue;
     if(e.shell && e.shellMoving){
@@ -1841,7 +1809,6 @@ function update(dt){
     }
   }
 
-  // Касание флага — запускаем финальную анимацию
   if(!won && !finish.active && player.x + player.w > level.flagX * TILE && player.x < level.flagX * TILE + 40){
     startFinishAnimation();
   }
@@ -1932,12 +1899,11 @@ function setupControls(){
   bindButton('btn-left','left');
   bindButton('btn-right','right');
   bindButton('btn-jump','jump');
-  bindButton('btn-run','run');
+
   const KEYMAP = {
     'arrowleft':'left','a':'left','ф':'left',
     'arrowright':'right','d':'right','в':'right',
-    'arrowup':'jump','w':'jump','ц':'jump',' ':'jump','spacebar':'jump','z':'jump','я':'jump',
-    'shift':'run','x':'run','ч':'run'
+    'arrowup':'jump','w':'jump','ц':'jump',' ':'jump','spacebar':'jump','z':'jump','я':'jump'
   };
   document.addEventListener('keydown', (e) => {
     initAudio();
@@ -1987,7 +1953,6 @@ function setupControls(){
     }
   });
   document.body.addEventListener('touchmove', (e) => e.preventDefault(), {passive:false});
-  // Запрет двойного тапа
   let lastTouchEnd = 0;
   document.addEventListener('touchend', (e) => {
     const now = Date.now();
