@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#f7f7f7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="format-detection" content="telephone=no">
+<title>Dino Run</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+html,body{width:100%;height:100%;overflow:hidden;background:#f7f7f7;font-family:'Courier New',monospace;overscroll-behavior:none;position:fixed}
+body{inset:0;transition:background .5s}
+
+#rotate{position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,#0a1030,#1a2050,#05060f);display:none;flex-direction:column;justify-content:center;align-items:center;color:#fff;padding:30px;text-align:center}
+#rotate.show{display:flex}
+.rotate-icon{font-size:80px;margin-bottom:30px;animation:rot 2.5s ease-in-out infinite;filter:drop-shadow(0 0 30px rgba(147,197,253,.6))}
+@keyframes rot{0%,20%{transform:rotate(0)}50%,70%{transform:rotate(-90deg)}100%{transform:rotate(-90deg)}}
+.rotate-title{font-size:22px;font-weight:900;letter-spacing:2px;margin-bottom:14px;background:linear-gradient(110deg,#fff,#93c5fd);-webkit-background-clip:text;background-clip:text;color:transparent}
+.rotate-text{font-size:13px;color:rgba(255,255,255,.65);line-height:1.6;max-width:280px}
+.rotate-hint{margin-top:30px;font-size:11px;color:rgba(147,197,253,.6);letter-spacing:2px;text-transform:uppercase;font-weight:700}
+
+#game{position:absolute;inset:0;touch-action:none;cursor:pointer}
+#canvas{position:absolute;inset:0;width:100%;height:100%;display:block;outline:none;image-rendering:pixelated;pointer-events:none}
+
+/* HUD */
+#hud{position:absolute;top:0;left:0;right:0;padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top));padding-left:calc(16px + env(safe-area-inset-left));padding-right:calc(16px + env(safe-area-inset-right));display:flex;justify-content:space-between;align-items:flex-start;z-index:20;pointer-events:none;font-family:'Courier New',monospace}
+.hud-score{font-size:18px;font-weight:700;letter-spacing:4px;color:#535353;text-shadow:1px 1px 0 rgba(255,255,255,.5);transition:opacity .1s,color .5s}
+.hud-right{display:flex;gap:8px;pointer-events:auto}
+.hud-btn{width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.08);border:2px solid rgba(0,0,0,.15);color:#535353;font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;font-weight:900;transition:background .2s,border-color .5s,color .5s}
+.hud-btn:active{transform:scale(.9);background:rgba(0,0,0,.15)}
+.hud-btn.close{background:rgba(220,38,38,.15);border-color:rgba(220,38,38,.4);color:#dc2626}
+
+/* Ночной режим */
+body.night{background:#1a1a1a}
+body.night .hud-score{color:#f7f7f7}
+body.night .hud-btn{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);color:#f7f7f7}
+body.night .hud-btn.close{background:rgba(220,38,38,.3);border-color:rgba(220,38,38,.6);color:#fff}
+
+/* ДВЕ КНОПКИ РЯДОМ ВНИЗУ СПРАВА */
+#buttons{
+  position:absolute;
+  right:calc(20px + env(safe-area-inset-right));
+  bottom:calc(20px + env(safe-area-inset-bottom));
+  display:flex;
+  gap:12px;
+  z-index:20;
+  pointer-events:none;
+}
+.ctrl-btn{
+  width:68px;height:68px;border-radius:50%;
+  background:rgba(83,83,83,.15);
+  border:3px solid rgba(83,83,83,.4);
+  display:flex;align-items:center;justify-content:center;
+  color:#535353;font-size:28px;font-weight:900;
+  cursor:pointer;touch-action:none;
+  transition:transform .08s,background .08s,border-color .5s,color .5s;
+  pointer-events:auto;
+  text-shadow:0 1px 0 rgba(255,255,255,.4);
+}
+.ctrl-btn.active{transform:scale(.88);background:rgba(83,83,83,.35)}
+body.night .ctrl-btn{background:rgba(247,247,247,.15);border-color:rgba(247,247,247,.4);color:#f7f7f7;text-shadow:0 1px 0 rgba(0,0,0,.4)}
+body.night .ctrl-btn.active{background:rgba(247,247,247,.35)}
+
+/* Подсказки ПК */
+#kb-hints{position:absolute;bottom:calc(12px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:25;display:flex;gap:12px;color:rgba(83,83,83,.7);font-size:11px;font-family:'Courier New',monospace;pointer-events:none;opacity:0;transition:opacity .5s;flex-wrap:wrap;justify-content:center}
+#kb-hints.show{opacity:1}
+#kb-hints .k{display:inline-block;padding:2px 6px;background:rgba(83,83,83,.15);border:1px solid rgba(83,83,83,.3);border-radius:4px;margin-right:3px;font-weight:700;color:#535353}
+body.night #kb-hints{color:rgba(247,247,247,.7)}
+body.night #kb-hints .k{background:rgba(247,247,247,.15);border-color:rgba(247,247,247,.3);color:#f7f7f7}
+
+/* Game Over */
+#msg-screen{position:absolute;inset:0;z-index:50;display:none;flex-direction:column;justify-content:center;align-items:center;background:rgba(247,247,247,.95);color:#535353;text-align:center;padding:30px;font-family:'Courier New',monospace;transition:background .5s,color .5s}
+#msg-screen.show{display:flex;animation:fadeIn .3s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.msg-icon{font-size:56px;margin-bottom:16px;filter:grayscale(1)}
+.msg-title{font-size:26px;font-weight:900;letter-spacing:6px;margin-bottom:22px;color:#535353;text-transform:uppercase}
+.msg-stats{display:flex;gap:44px;margin-bottom:26px;flex-wrap:wrap;justify-content:center}
+.msg-stat{display:flex;flex-direction:column;align-items:center;gap:6px}
+.msg-stat-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#8a8a8a;font-weight:700}
+.msg-stat-value{font-size:24px;font-weight:900;font-family:'Courier New',monospace;color:#535353}
+.msg-hint{font-size:12px;color:#8a8a8a;margin-bottom:22px;letter-spacing:1px}
+.msg-btn{padding:13px 32px;border-radius:10px;background:#535353;border:none;color:#f7f7f7;font-family:inherit;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;touch-action:manipulation;margin:6px}
+.msg-btn.red{background:#dc2626}
+.msg-btn:active{transform:scale(.95)}
+.msg-buttons{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+body.night #msg-screen{background:rgba(26,26,26,.95);color:#f7f7f7}
+body.night .msg-title{color:#f7f7f7}
+body.night .msg-stat-value{color:#f7f7f7}
+body.night .msg-stat-label{color:#9a9a9a}
+body.night .msg-hint{color:#9a9a9a}
+body.night .msg-btn{background:#f7f7f7;color:#1a1a1a}
+body.night .msg-btn.red{background:#dc2626;color:#fff}
+
+@media (max-height:420px){
+  .ctrl-btn{width:58px;height:58px;font-size:24px}
+  #buttons{gap:10px}
+  .hud-btn{width:32px;height:32px;font-size:13px}
+  .hud-score{font-size:15px}
+}
+</style>
+</head>
+<body>
+
+<div id="rotate">
+  <div class="rotate-icon">📱</div>
+  <div class="rotate-title">ПОВЕРНИ ТЕЛЕФОН</div>
+  <div class="rotate-text">Для игры нужен горизонтальный режим.<br>Поверни телефон на 90°.</div>
+  <div class="rotate-hint">LANDSCAPE MODE</div>
+</div>
+
+<div id="game">
+  <canvas id="canvas"></canvas>
+
+  <div id="hud">
+    <div class="hud-score" id="hud-score">00000</div>
+    <div class="hud-right">
+      <div class="hud-btn" id="audio-btn" onclick="toggleSound(event)">🔊</div>
+      <div class="hud-btn close" onclick="backToMenu(event)">✕</div>
+    </div>
+  </div>
+
+  <div id="buttons">
+    <div class="ctrl-btn" id="btn-duck">▼</div>
+    <div class="ctrl-btn" id="btn-jump">▲</div>
+  </div>
+
+  <div id="kb-hints">
+    <span><span class="k">SPACE</span>прыжок</span>
+    <span><span class="k">↓</span>присесть</span>
+    <span><span class="k">R</span>рестарт</span>
+  </div>
+
+  <div id="msg-screen">
+    <div class="msg-icon">🦖</div>
+    <div class="msg-title">GAME OVER</div>
+    <div class="msg-stats">
+      <div class="msg-stat">
+        <div class="msg-stat-label">Очки</div>
+        <div class="msg-stat-value" id="msg-score">0</div>
+      </div>
+      <div class="msg-stat">
+        <div class="msg-stat-label">Рекорд</div>
+        <div class="msg-stat-value" id="msg-best">0</div>
+      </div>
+    </div>
+    <div class="msg-hint">Нажми ЗАНОВО или коснись экрана</div>
+    <div class="msg-buttons">
+      <button class="msg-btn" onclick="restartGame(event)">ЗАНОВО</button>
+      <button class="msg-btn red" onclick="backToMenu(event)">В МЕНЮ</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ============ КОНСТАНТЫ ============
+const GRAVITY = 3000;
+const JUMP_VELOCITY = -1000;
+const MAX_FALL = 1600;
+const BASE_SPEED = 400;
+const MAX_SPEED = 850;
+const ACCEL = 12;
+const DINO_SCREEN_X = 0.15;
+
+const COLORS = {
+  day:   { bg: '#f7f7f7', fg: '#535353' },
+  night: { bg: '#1a1a1a', fg: '#f7f7f7' }
+};
+
+// ============ КАНВАС ============
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d', {alpha:false});
+let W = 0, H = 0, DPR = 1;
+let groundY = 0;
+
+function resize(){
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  W = window.innerWidth;
+  H = window.innerHeight;
+  canvas.width = Math.floor(W * DPR);
+  canvas.height = Math.floor(H * DPR);
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.imageSmoothingEnabled = false;
+  groundY = H * 0.78;
+}
+
+// ============ СОСТОЯНИЕ ============
+let state = {
+  running: false,
+  gameOver: false,
+  distance: 0,
+  score: 0,
+  speed: BASE_SPEED,
+  time: 0,
+  best: parseInt(localStorage.getItem('dino_best') || '0'),
+  night: false,
+  nightTimer: 0,
+  nextNight: false
+};
+
+let dino = null;
+let world = null;
+
+// ============ УПРАВЛЕНИЕ ============
+const keys = { jump: false, duck: false };
+const jumpBuffer = { pressed: false, timer: 0 };
+
+function tryJump(){
+  if(state.gameOver){
+    restartGame();
+    return;
+  }
+  if(!state.running) state.running = true;
+  jumpBuffer.pressed = true;
+  jumpBuffer.timer = 0.15;
+}
+
+function setupControls(){
+  const gameEl = document.getElementById('game');
+
+  // Тап в любое место экрана = прыжок
+  const onTouchStart = (e) => {
+    if(e.target.closest('.hud-btn') || e.target.closest('.msg-btn') || e.target.closest('.ctrl-btn')){
+      return;
+    }
+    e.preventDefault();
+    initAudio();
+    tryJump();
+    flashButton('btn-jump');
+  };
+
+  const onMouseDown = (e) => {
+    if(e.button !== 0) return;
+    if(e.target.closest('.hud-btn') || e.target.closest('.msg-btn') || e.target.closest('.ctrl-btn')){
+      return;
+    }
+    initAudio();
+    tryJump();
+    flashButton('btn-jump');
+  };
+
+  gameEl.addEventListener('touchstart', onTouchStart, {passive:false});
+  gameEl.addEventListener('mousedown', onMouseDown);
+
+  // Кнопки
+  const jumpBtn = document.getElementById('btn-jump');
+  const duckBtn = document.getElementById('btn-duck');
+
+  const jumpDown = (e) => {
+    e.preventDefault(); e.stopPropagation();
+    initAudio();
+    tryJump();
+    keys.jump = true;
+    jumpBtn.classList.add('active');
+  };
+  const jumpUp = (e) => {
+    e.preventDefault(); e.stopPropagation();
+    keys.jump = false;
+    jumpBtn.classList.remove('active');
+  };
+
+  const duckDown = (e) => {
+    e.preventDefault(); e.stopPropagation();
+    initAudio();
+    if(state.gameOver){ restartGame(); return; }
+    if(!state.running) state.running = true;
+    keys.duck = true;
+    duckBtn.classList.add('active');
+  };
+  const duckUp = (e) => {
+    e.preventDefault(); e.stopPropagation();
+    keys.duck = false;
+    duckBtn.classList.remove('active');
+  };
+
+  // Jump
+  jumpBtn.addEventListener('touchstart', jumpDown, {passive:false});
+  jumpBtn.addEventListener('touchend', jumpUp, {passive:false});
+  jumpBtn.addEventListener('touchcancel', jumpUp, {passive:false});
+  jumpBtn.addEventListener('mousedown', jumpDown);
+  jumpBtn.addEventListener('mouseup', jumpUp);
+  jumpBtn.addEventListener('mouseleave', jumpUp);
+
+  // Duck
+  duckBtn.addEventListener('touchstart', duckDown, {passive:false});
+  duckBtn.addEventListener('touchend', duckUp, {passive:false});
+  duckBtn.addEventListener('touchcancel', duckUp, {passive:false});
+  duckBtn.addEventListener('mousedown', duckDown);
+  duckBtn.addEventListener('mouseup', duckUp);
+  duckBtn.addEventListener('mouseleave', duckUp);
+
+  // Клавиатура
+  document.addEventListener('keydown', (e) => {
+    initAudio();
+    const k = e.key.toLowerCase();
+    if(k === 'r' || k === 'к'){ e.preventDefault(); restartGame(); return; }
+    if(k === 'escape'){ e.preventDefault(); backToMenu(); return; }
+
+    if(k === ' ' || k === 'arrowup' || k === 'w' || k === 'ц'){
+      e.preventDefault();
+      if(state.gameOver){ restartGame(); return; }
+      if(!keys.jump) tryJump();
+      keys.jump = true;
+      document.getElementById('btn-jump').classList.add('active');
+    }
+    if(k === 'arrowdown' || k === 's' || k === 'ы'){
+      e.preventDefault();
+      if(!state.running && !state.gameOver) state.running = true;
+      keys.duck = true;
+      document.getElementById('btn-duck').classList.add('active');
+    }
+  }, true);
+
+  document.addEventListener('keyup', (e) => {
+    const k = e.key.toLowerCase();
+    if(k === ' ' || k === 'arrowup' || k === 'w' || k === 'ц'){
+      keys.jump = false;
+      document.getElementById('btn-jump').classList.remove('active');
+    }
+    if(k === 'arrowdown' || k === 's' || k === 'ы'){
+      keys.duck = false;
+      document.getElementById('btn-duck').classList.remove('active');
+    }
+  }, true);
+
+  document.body.addEventListener('touchmove', (e) => e.preventDefault(), {passive:false});
+  document.addEventListener('contextmenu', e => e.preventDefault());
+
+  const hints = document.getElementById('kb-hints');
+  let shown = false;
+  document.addEventListener('keydown', () => {
+    if(shown) return;
+    shown = true;
+    hints.classList.add('show');
+    setTimeout(() => hints.classList.remove('show'), 5000);
+  }, {once:true, capture:true});
+}
+
+function flashButton(id){
+  const btn = document.getElementById(id);
+  if(!btn) return;
+  btn.classList.add('active');
+  setTimeout(() => btn.classList.remove('active'), 100);
+}
+
+// ============ ЗВУК ============
+let audioCtx = null;
+let soundOn = true;
+function initAudio(){
+  if(!audioCtx){
+    try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){}
+  }
+  if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+}
+function beep(freq, dur, type, vol, delay){
+  if(!audioCtx || !soundOn) return;
+  const start = audioCtx.currentTime + (delay || 0);
+  try{
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type || 'square';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0, start);
+    gain.gain.linearRampToValueAtTime(vol || 0.08, start + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.001, start + dur);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(start); osc.stop(start + dur);
+  }catch(e){}
+}
+const sfx = {
+  jump(){ beep(700, 0.08, 'square', 0.05); beep(900, 0.06, 'square', 0.04, 0.03); },
+  point(){ beep(1000, 0.06, 'square', 0.05); beep(1200, 0.08, 'square', 0.04, 0.05); },
+  hit(){ beep(200, 0.15, 'sawtooth', 0.08); beep(120, 0.25, 'sawtooth', 0.06, 0.05); }
+};
+function toggleSound(e){
+  if(e) e.stopPropagation();
+  soundOn = !soundOn;
+  document.getElementById('audio-btn').textContent = soundOn ? '🔊' : '🔇';
+}
+function vibrate(pattern){ if(navigator.vibrate && soundOn) navigator.vibrate(pattern); }
+
+// ============ МИР ============
+function createWorld(){
+  return {
+    obstacles: [],
+    clouds: [],
+    nextObstacleX: 0,
+    nextCloudX: 0,
+    stars: null
+  };
+}
+
+function extendWorld(){
+  const lookAhead = state.distance + W * 2;
+
+  while(world.nextObstacleX < lookAhead){
+    const x = world.nextObstacleX;
+    const difficulty = Math.min(1, state.distance / 8000);
+
+    if(state.distance > 3000 && Math.random() < 0.22 + difficulty * 0.15){
+      const heights = [-55, -95, -135];
+      const y = heights[Math.floor(Math.random() * heights.length)];
+      world.obstacles.push({
+        x: x, y: y, w: 46, h: 40,
+        type: 'bird', frame: 0, animTimer: 0
+      });
+    } else {
+      const isBig = Math.random() < 0.5;
+      const count = Math.random() < 0.35 ? 2 : 1;
+      const cactusW = isBig ? 26 : 18;
+      const cactusH = isBig ? 52 : 36;
+
+      for(let i = 0; i < count; i++){
+        world.obstacles.push({
+          x: x + i * (cactusW + 4),
+          y: -cactusH,
+          w: cactusW,
+          h: cactusH,
+          type: isBig ? 'cactus-big' : 'cactus-small'
+        });
+      }
+    }
+
+    const baseGap = 320 - difficulty * 120;
+    const gap = baseGap + Math.random() * 200;
+    world.nextObstacleX = x + gap;
+  }
+
+  while(world.nextCloudX < lookAhead){
+    const y = -H * 0.3 - Math.random() * H * 0.15;
+    world.clouds.push({
+      x: world.nextCloudX,
+      y: y,
+      scale: 0.8 + Math.random() * 0.4
+    });
+    world.nextCloudX += 300 + Math.random() * 350;
+  }
+}
+
+function cleanupWorld(){
+  const cutoff = state.distance - 100;
+  world.obstacles = world.obstacles.filter(o => o.x + o.w > cutoff);
+  world.clouds = world.clouds.filter(c => c.x + 60 > cutoff);
+}
+
+// ============ ФИЗИКА ============
+function update(dt){
+  if(!state.running || state.gameOver) return;
+
+  state.time += dt;
+  state.speed = Math.min(MAX_SPEED, state.speed + ACCEL * dt);
+  state.distance += state.speed * dt;
+
+  const newScore = Math.floor(state.distance / 10);
+  if(Math.floor(newScore / 100) > Math.floor(state.score / 100)){
+    sfx.point();
+    const hudScore = document.getElementById('hud-score');
+    hudScore.style.opacity = '0.3';
+    setTimeout(() => { hudScore.style.opacity = '1'; }, 100);
+  }
+  state.score = newScore;
+
+  if(!state.night && state.score > 700 && state.score % 700 < 20 && !state.nextNight){
+    state.nextNight = true;
+    state.nightTimer = 0;
+  }
+  if(state.nextNight){
+    state.nightTimer += dt;
+    if(state.nightTimer > 2){
+      state.night = !state.night;
+      document.body.classList.toggle('night', state.night);
+      state.nextNight = false;
+      state.nightTimer = 0;
+    }
+  }
+
+  if(jumpBuffer.timer > 0){
+    jumpBuffer.timer -= dt;
+    if(jumpBuffer.timer <= 0) jumpBuffer.pressed = false;
+  }
+
+  if(jumpBuffer.pressed && dino.onGround && !dino.isDucking){
+    dino.vy = JUMP_VELOCITY;
+    dino.onGround = false;
+    dino.isJumping = true;
+    jumpBuffer.pressed = false;
+    jumpBuffer.timer = 0;
+    sfx.jump();
+    vibrate(12);
+  }
+
+  if(keys.duck && dino.onGround && !dino.isJumping){
+    dino.isDucking = true;
+  } else {
+    dino.isDucking = false;
+  }
+
+  if(!dino.onGround){
+    dino.vy += GRAVITY * dt;
+    if(dino.vy > MAX_FALL) dino.vy = MAX_FALL;
+    dino.y += dino.vy * dt;
+    if(dino.y >= 0){
+      dino.y = 0;
+      dino.vy = 0;
+      dino.onGround = true;
+      dino.isJumping = false;
+    }
+  }
+
+  checkObstacles();
+
+  dino.animTimer += dt;
+  const speedFactor = state.speed / BASE_SPEED;
+  const frameTime = 0.09 / speedFactor;
+  if(dino.animTimer > frameTime){
+    dino.animTimer = 0;
+    dino.animFrame = (dino.animFrame + 1) % 2;
+  }
+
+  for(const o of world.obstacles){
+    if(o.type === 'bird'){
+      o.animTimer += dt;
+      if(o.animTimer > 0.15){
+        o.animTimer = 0;
+        o.frame = (o.frame + 1) % 2;
+      }
+    }
+  }
+
+  extendWorld();
+  cleanupWorld();
+  updateHUD();
+}
+
+function checkObstacles(){
+  const dinoWorldX = state.distance;
+  const dinoW = dino.isDucking ? 56 : 40;
+  const dinoWorldRight = dinoWorldX + dinoW;
+  const pad = 7;
+
+  const dinoLeft = dinoWorldX + pad;
+  const dinoRight = dinoWorldRight - pad;
+  const dinoHeight = dino.isDucking ? 26 : 42;
+  const dinoTop = dino.y - dinoHeight + pad;
+  const dinoBottom = dino.y - pad;
+
+  for(const o of world.obstacles){
+    const oLeft = o.x + 5;
+    const oRight = o.x + o.w - 5;
+    const oTop = o.y + 5;
+    const oBottom = o.y + o.h - 5;
+
+    if(dinoRight < oLeft || dinoLeft > oRight) continue;
+    if(dinoBottom < oTop || dinoTop > oBottom) continue;
+
+    gameOver();
+    return;
+  }
+}
+
+// ============ РЕНДЕР ============
+function render(){
+  const colors = state.night ? COLORS.night : COLORS.day;
+
+  ctx.fillStyle = colors.bg;
+  ctx.fillRect(0, 0, W, H);
+
+  if(state.night){
+    drawStars();
+    drawMoon();
+  }
+
+  for(const c of world.clouds){
+    const cScreenX = c.x - state.distance * 0.4 + W * DINO_SCREEN_X;
+    if(cScreenX + 60 < -50 || cScreenX > W + 50) continue;
+    drawCloud(cScreenX, groundY + c.y, c.scale, colors.fg);
+  }
+
+  drawGround(colors.fg);
+
+  for(const o of world.obstacles){
+    const oScreenX = o.x - state.distance + W * DINO_SCREEN_X;
+    if(oScreenX + o.w < -50 || oScreenX > W + 50) continue;
+
+    if(o.type === 'bird'){
+      drawBird(oScreenX, groundY + o.y, o, colors.fg);
+    } else {
+      drawCactus(oScreenX, groundY + o.y, o, colors.fg);
+    }
+  }
+
+  drawDino(colors.fg);
+}
+
+// ============ ДИНОЗАВР — КОМПАКТНЫЙ И АККУРАТНЫЙ ============
+function drawDino(color){
+  const dinoScreenX = W * DINO_SCREEN_X;
+  const dinoY = groundY + dino.y;
+  // Масштаб меньше — не раздувается
+  const scale = Math.max(1, Math.min(1.6, H / 520));
+
+  ctx.save();
+  ctx.translate(dinoScreenX, dinoY);
+  ctx.scale(scale, scale);
+
+  if(dino.isDucking){
+    drawDinoDuck(ctx, color);
+  } else {
+    drawDinoStand(ctx, color);
+  }
+
+  ctx.restore();
+}
+
+// СТОЯЩИЙ ДИНОЗАВР — 22×24 юнита (×2 = 44×48)
+function drawDinoStand(ctx, color){
+  const px = 2;
+  const bg = state.night ? COLORS.night.bg : COLORS.day.bg;
+
+  ctx.fillStyle = color;
+
+  // === ХВОСТ ===
+  ctx.fillRect(-4 * px, -17 * px, 4 * px, 2 * px);
+  ctx.fillRect(-3 * px, -15 * px, 3 * px, 3 * px);
+
+  // === СПИНА ===
+  ctx.fillRect(0, -20 * px, 6 * px, 3 * px);
+  ctx.fillRect(0, -17 * px, 8 * px, 2 * px);
+
+  // === ТЕЛО ===
+  ctx.fillRect(0, -15 * px, 9 * px, 10 * px);
+
+  // === ШЕЯ (короткая) ===
+  ctx.fillRect(6 * px, -22 * px, 4 * px, 5 * px);
+
+  // === ГОЛОВА ===
+  ctx.fillRect(6 * px, -24 * px, 10 * px, 3 * px);
+  ctx.fillRect(7 * px, -21 * px, 11 * px, 4 * px);
+
+  // === МОРДА (выступает вправо) ===
+  ctx.fillRect(15 * px, -20 * px, 4 * px, 3 * px);
+  ctx.fillRect(16 * px, -17 * px, 4 * px, 2 * px);
+
+  // Зуб
+  ctx.fillRect(18 * px, -15 * px, 1 * px, 1 * px);
+
+  // === ГЛАЗ ===
+  ctx.fillStyle = bg;
+  ctx.fillRect(13 * px, -23 * px, 3 * px, 3 * px);
+  // Зрачок
+  ctx.fillStyle = color;
+  ctx.fillRect(14 * px, -22 * px, 2 * px, 2 * px);
+
+  // Ноздря
+  ctx.fillStyle = bg;
+  ctx.fillRect(17 * px, -20 * px, 1 * px, 1 * px);
+
+  // === РУКА ===
+  ctx.fillStyle = color;
+  ctx.fillRect(7 * px, -12 * px, 2 * px, 4 * px);
+  ctx.fillRect(6 * px, -9 * px, 3 * px, 1 * px);
+
+  // === НОГИ ===
+  const legAnim = dino.onGround ? dino.animFrame : 1;
+  const backUp = legAnim === 0 ? 0 : 2;
+  const frontUp = legAnim === 0 ? 2 : 0;
+
+  // Задняя нога
+  ctx.fillRect(1 * px, -5 * px, 3 * px, (5 - backUp) * px);
+  ctx.fillRect(0, 0, 4 * px, 2 * px);
+
+  // Передняя нога
+  ctx.fillRect(5 * px, -5 * px, 3 * px, (5 - frontUp) * px);
+  ctx.fillRect(4 * px, 0, 4 * px, 2 * px);
+
+  // Пальцы
+  ctx.fillRect(0, 2 * px, 2 * px, 1 * px);
+  ctx.fillRect(4 * px, 2 * px, 2 * px, 1 * px);
+}
+
+// ПРИСЕВШИЙ ДИНОЗАВР — 28×14 юнитов
+function drawDinoDuck(ctx, color){
+  const px = 2;
+  const bg = state.night ? COLORS.night.bg : COLORS.day.bg;
+
+  ctx.fillStyle = color;
+
+  // Хвост
+  ctx.fillRect(-4 * px, -10 * px, 5 * px, 3 * px);
+
+  // Тело (плоское)
+  ctx.fillRect(0, -11 * px, 13 * px, 11 * px);
+
+  // Голова (выступает вправо)
+  ctx.fillRect(11 * px, -13 * px, 10 * px, 7 * px);
+  ctx.fillRect(20 * px, -11 * px, 3 * px, 3 * px);
+
+  // Глаз
+  ctx.fillStyle = bg;
+  ctx.fillRect(17 * px, -12 * px, 2 * px, 2 * px);
+
+  // Зуб
+  ctx.fillStyle = color;
+  ctx.fillRect(20 * px, -9 * px, 1 * px, 1 * px);
+
+  // Ноги (короткие)
+  const legAnim = dino.onGround ? dino.animFrame : 0;
+  ctx.fillRect(8 * px, 0, 3 * px, (2 + legAnim) * px);
+  ctx.fillRect(2 * px, 0, 3 * px, (2 - legAnim) * px);
+
+  // Ступни
+  ctx.fillRect(7 * px, 2 * px, 5 * px, 2 * px);
+  ctx.fillRect(1 * px, 2 * px, 5 * px, 2 * px);
+}
+
+// ============ КАКТУСЫ ============
+function drawCactus(x, y, o, color){
+  const isBig = o.type === 'cactus-big';
+  ctx.fillStyle = color;
+
+  if(isBig){
+    const px = 2;
+    // Ствол
+    ctx.fillRect(x + 9 * px, y, 7 * px, 26 * px);
+    // Левая ветка
+    ctx.fillRect(x + 3 * px, y + 12 * px, 3 * px, 7 * px);
+    ctx.fillRect(x + 3 * px, y + 9 * px, 6 * px, 4 * px);
+    // Правая ветка
+    ctx.fillRect(x + 18 * px, y + 6 * px, 3 * px, 8 * px);
+    ctx.fillRect(x + 15 * px, y + 4 * px, 6 * px, 3 * px);
+    // Верхушка
+    ctx.fillRect(x + 10 * px, y - 1 * px, 5 * px, 1 * px);
+  } else {
+    const px = 2;
+    // Ствол
+    ctx.fillRect(x + 6 * px, y, 5 * px, 18 * px);
+    // Левая ветка
+    ctx.fillRect(x + 2 * px, y + 8 * px, 3 * px, 5 * px);
+    ctx.fillRect(x + 2 * px, y + 6 * px, 5 * px, 3 * px);
+    // Правая ветка
+    ctx.fillRect(x + 12 * px, y + 5 * px, 3 * px, 6 * px);
+    ctx.fillRect(x + 10 * px, y + 3 * px, 5 * px, 3 * px);
+    // Верхушка
+    ctx.fillRect(x + 7 * px, y - 1 * px, 3 * px, 1 * px);
+  }
+}
+
+// ============ ПТЕРОДАКТИЛЬ ============
+function drawBird(x, y, o, color){
+  ctx.fillStyle = color;
+  const px = 2;
+  const bg = state.night ? COLORS.night.bg : COLORS.day.bg;
+
+  ctx.fillRect(x + 5 * px, y + 6 * px, 14 * px, 4 * px);
+  ctx.fillRect(x + 17 * px, y + 4 * px, 5 * px, 4 * px);
+  ctx.fillRect(x + 21 * px, y + 5 * px, 4 * px, 2 * px);
+  ctx.fillRect(x + 1 * px, y + 5 * px, 5 * px, 3 * px);
+
+  ctx.fillStyle = bg;
+  ctx.fillRect(x + 18 * px, y + 5 * px, 1 * px, 1 * px);
+  ctx.fillStyle = color;
+
+  if(o.frame === 0){
+    ctx.fillRect(x + 7 * px, y - 4 * px, 9 * px, 9 * px);
+    ctx.fillRect(x + 9 * px, y - 7 * px, 5 * px, 4 * px);
+  } else {
+    ctx.fillRect(x + 7 * px, y + 10 * px, 9 * px, 7 * px);
+    ctx.fillRect(x + 9 * px, y + 17 * px, 5 * px, 3 * px);
+  }
+}
+
+// ============ ОКРУЖЕНИЕ ============
+function drawCloud(x, y, scale, color){
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(scale, scale);
+  ctx.fillStyle = color;
+  ctx.globalAlpha = 0.8;
+
+  const px = 2;
+  ctx.fillRect(6 * px, 0, 10 * px, 2 * px);
+  ctx.fillRect(3 * px, 2 * px, 16 * px, 2 * px);
+  ctx.fillRect(0, 4 * px, 22 * px, 2 * px);
+  ctx.fillRect(2 * px, 6 * px, 18 * px, 1 * px);
+  ctx.fillRect(5 * px, -2 * px, 8 * px, 2 * px);
+
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+function drawGround(color){
+  ctx.fillStyle = color;
+  ctx.fillRect(0, groundY + 2, W, 2);
+
+  const dotSpacing = 14;
+  const offset = state.distance % dotSpacing;
+
+  ctx.globalAlpha = 0.5;
+  for(let x = -offset; x < W; x += dotSpacing){
+    const seed = Math.floor((x + state.distance) / dotSpacing);
+    if(seed % 2 === 0) ctx.fillRect(x, groundY + 6, 2, 2);
+    if(seed % 3 === 0) ctx.fillRect(x + 5, groundY + 10, 3, 1);
+    if(seed % 5 === 0) ctx.fillRect(x + 8, groundY + 14, 2, 1);
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawStars(){
+  if(!world.stars){
+    world.stars = [];
+    for(let i = 0; i < 40; i++){
+      world.stars.push({
+        x: Math.random() * W * 3,
+        y: Math.random() * H * 0.6,
+        size: Math.random() < 0.3 ? 2 : 1
+      });
+    }
+  }
+  ctx.fillStyle = '#f7f7f7';
+  for(const s of world.stars){
+    const sx = (s.x - state.distance * 0.05) % (W * 1.5);
+    if(sx > -10 && sx < W + 10){
+      ctx.fillRect(sx, s.y, s.size, s.size);
+    }
+  }
+}
+
+function drawMoon(){
+  const moonX = W * 0.85;
+  const moonY = H * 0.15;
+
+  ctx.fillStyle = '#f7f7f7';
+  ctx.beginPath();
+  ctx.arc(moonX, moonY, 20, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = COLORS.night.bg;
+  ctx.beginPath();
+  ctx.arc(moonX + 8, moonY - 5, 18, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+// ============ ИГРА ============
+function resetGame(){
+  state.running = false;
+  state.gameOver = false;
+  state.distance = 0;
+  state.score = 0;
+  state.speed = BASE_SPEED;
+  state.time = 0;
+  state.night = false;
+  state.nightTimer = 0;
+  state.nextNight = false;
+  document.body.classList.remove('night');
+
+  dino = {
+    y: 0,
+    vy: 0,
+    onGround: true,
+    isJumping: false,
+    isDucking: false,
+    animFrame: 0,
+    animTimer: 0
+  };
+
+  world = createWorld();
+  world.stars = null;
+  world.nextObstacleX = W * 1.3;
+  world.nextCloudX = W * 0.4;
+
+  document.getElementById('msg-screen').classList.remove('show');
+  updateHUD();
+}
+
+function gameOver(){
+  if(state.gameOver) return;
+  state.gameOver = true;
+  state.running = false;
+  sfx.hit();
+  vibrate([100, 50, 150]);
+
+  if(state.score > state.best){
+    state.best = state.score;
+    localStorage.setItem('dino_best', state.best);
+  }
+
+  document.getElementById('msg-score').textContent = String(state.score).padStart(5, '0');
+  document.getElementById('msg-best').textContent = String(state.best).padStart(5, '0');
+  document.getElementById('msg-screen').classList.add('show');
+}
+
+function updateHUD(){
+  document.getElementById('hud-score').textContent = String(state.score).padStart(5, '0');
+}
+
+function restartGame(e){
+  if(e){ e.stopPropagation(); }
+  resetGame();
+}
+
+function backToMenu(e){
+  if(e){ e.stopPropagation(); }
+  if(confirm('Выйти в меню?')){
+    if(history.length > 1) history.back();
+    else window.location.href = 'index.html';
+  }
+}
+
+// ============ ЦИКЛ ============
+let lastTime = 0;
+function loop(t){
+  const dt = Math.min(0.033, (t - lastTime) / 1000 || 0.016);
+  lastTime = t;
+  if(state.running) update(dt);
+  render();
+  requestAnimationFrame(loop);
+}
+
+// ============ ОРИЕНТАЦИЯ ============
+function checkOrientation(){
+  const portrait = window.innerHeight > window.innerWidth;
+  const rotate = document.getElementById('rotate');
+  if(portrait){
+    rotate.classList.add('show');
+  } else {
+    rotate.classList.remove('show');
+    try {
+      if(screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(()=>{});
+    } catch(e){}
+  }
+}
+
+// ============ СТАРТ ============
+window.addEventListener('resize', () => { resize(); checkOrientation(); });
+window.addEventListener('orientationchange', () => setTimeout(() => { resize(); checkOrientation(); }, 200));
+
+window.addEventListener('touchstart', () => initAudio(), {once:true});
+window.addEventListener('click', () => initAudio(), {once:true});
+window.addEventListener('keydown', () => initAudio(), {once:true});
+
+resize();
+checkOrientation();
+setupControls();
+resetGame();
+requestAnimationFrame(loop);
+</script>
+
+</body>
+</html>
