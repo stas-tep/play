@@ -24,7 +24,6 @@ body{inset:0;transition:background .5s}
 #game{position:absolute;inset:0;touch-action:none;cursor:pointer}
 #canvas{position:absolute;inset:0;width:100%;height:100%;display:block;outline:none;image-rendering:pixelated;pointer-events:none}
 
-/* HUD */
 #hud{position:absolute;top:0;left:0;right:0;padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top));padding-left:calc(16px + env(safe-area-inset-left));padding-right:calc(16px + env(safe-area-inset-right));display:flex;justify-content:space-between;align-items:flex-start;z-index:20;pointer-events:none;font-family:'Courier New',monospace}
 .hud-score{font-size:18px;font-weight:700;letter-spacing:4px;color:#535353;text-shadow:1px 1px 0 rgba(255,255,255,.5);transition:opacity .1s,color .5s}
 .hud-right{display:flex;gap:8px;pointer-events:auto}
@@ -32,13 +31,11 @@ body{inset:0;transition:background .5s}
 .hud-btn:active{transform:scale(.9);background:rgba(0,0,0,.15)}
 .hud-btn.close{background:rgba(220,38,38,.15);border-color:rgba(220,38,38,.4);color:#dc2626}
 
-/* Ночной режим */
 body.night{background:#1a1a1a}
 body.night .hud-score{color:#f7f7f7}
 body.night .hud-btn{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);color:#f7f7f7}
 body.night .hud-btn.close{background:rgba(220,38,38,.3);border-color:rgba(220,38,38,.6);color:#fff}
 
-/* ДВЕ КНОПКИ РЯДОМ ВНИЗУ СПРАВА */
 #buttons{
   position:absolute;
   right:calc(20px + env(safe-area-inset-right));
@@ -63,14 +60,12 @@ body.night .hud-btn.close{background:rgba(220,38,38,.3);border-color:rgba(220,38
 body.night .ctrl-btn{background:rgba(247,247,247,.15);border-color:rgba(247,247,247,.4);color:#f7f7f7;text-shadow:0 1px 0 rgba(0,0,0,.4)}
 body.night .ctrl-btn.active{background:rgba(247,247,247,.35)}
 
-/* Подсказки ПК */
 #kb-hints{position:absolute;bottom:calc(12px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:25;display:flex;gap:12px;color:rgba(83,83,83,.7);font-size:11px;font-family:'Courier New',monospace;pointer-events:none;opacity:0;transition:opacity .5s;flex-wrap:wrap;justify-content:center}
 #kb-hints.show{opacity:1}
 #kb-hints .k{display:inline-block;padding:2px 6px;background:rgba(83,83,83,.15);border:1px solid rgba(83,83,83,.3);border-radius:4px;margin-right:3px;font-weight:700;color:#535353}
 body.night #kb-hints{color:rgba(247,247,247,.7)}
 body.night #kb-hints .k{background:rgba(247,247,247,.15);border-color:rgba(247,247,247,.3);color:#f7f7f7}
 
-/* Game Over */
 #msg-screen{position:absolute;inset:0;z-index:50;display:none;flex-direction:column;justify-content:center;align-items:center;background:rgba(247,247,247,.95);color:#535353;text-align:center;padding:30px;font-family:'Courier New',monospace;transition:background .5s,color .5s}
 #msg-screen.show{display:flex;animation:fadeIn .3s}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -160,9 +155,9 @@ body.night .msg-btn.red{background:#dc2626;color:#fff}
 const GRAVITY = 3000;
 const JUMP_VELOCITY = -1000;
 const MAX_FALL = 1600;
-const BASE_SPEED = 400;
-const MAX_SPEED = 850;
-const ACCEL = 12;
+const BASE_SPEED = 360;      // медленный старт
+const MAX_SPEED = 680;       // ниже максимум
+const ACCEL = 3;             // очень плавный разгон
 const DINO_SCREEN_X = 0.15;
 
 const COLORS = {
@@ -223,7 +218,6 @@ function tryJump(){
 function setupControls(){
   const gameEl = document.getElementById('game');
 
-  // Тап в любое место экрана = прыжок
   const onTouchStart = (e) => {
     if(e.target.closest('.hud-btn') || e.target.closest('.msg-btn') || e.target.closest('.ctrl-btn')){
       return;
@@ -247,7 +241,6 @@ function setupControls(){
   gameEl.addEventListener('touchstart', onTouchStart, {passive:false});
   gameEl.addEventListener('mousedown', onMouseDown);
 
-  // Кнопки
   const jumpBtn = document.getElementById('btn-jump');
   const duckBtn = document.getElementById('btn-duck');
 
@@ -278,7 +271,6 @@ function setupControls(){
     duckBtn.classList.remove('active');
   };
 
-  // Jump
   jumpBtn.addEventListener('touchstart', jumpDown, {passive:false});
   jumpBtn.addEventListener('touchend', jumpUp, {passive:false});
   jumpBtn.addEventListener('touchcancel', jumpUp, {passive:false});
@@ -286,7 +278,6 @@ function setupControls(){
   jumpBtn.addEventListener('mouseup', jumpUp);
   jumpBtn.addEventListener('mouseleave', jumpUp);
 
-  // Duck
   duckBtn.addEventListener('touchstart', duckDown, {passive:false});
   duckBtn.addEventListener('touchend', duckUp, {passive:false});
   duckBtn.addEventListener('touchcancel', duckUp, {passive:false});
@@ -294,7 +285,6 @@ function setupControls(){
   duckBtn.addEventListener('mouseup', duckUp);
   duckBtn.addEventListener('mouseleave', duckUp);
 
-  // Клавиатура
   document.addEventListener('keydown', (e) => {
     initAudio();
     const k = e.key.toLowerCase();
@@ -400,9 +390,11 @@ function extendWorld(){
 
   while(world.nextObstacleX < lookAhead){
     const x = world.nextObstacleX;
-    const difficulty = Math.min(1, state.distance / 8000);
+    // Плавное нарастание сложности — на 15000px
+    const difficulty = Math.min(1, state.distance / 15000);
 
-    if(state.distance > 3000 && Math.random() < 0.22 + difficulty * 0.15){
+    // Птицы после 3500 очков
+    if(state.distance > 3500 && Math.random() < 0.18 + difficulty * 0.15){
       const heights = [-55, -95, -135];
       const y = heights[Math.floor(Math.random() * heights.length)];
       world.obstacles.push({
@@ -411,7 +403,7 @@ function extendWorld(){
       });
     } else {
       const isBig = Math.random() < 0.5;
-      const count = Math.random() < 0.35 ? 2 : 1;
+      const count = Math.random() < 0.3 ? 2 : 1;
       const cactusW = isBig ? 26 : 18;
       const cactusH = isBig ? 52 : 36;
 
@@ -426,8 +418,9 @@ function extendWorld(){
       }
     }
 
-    const baseGap = 320 - difficulty * 120;
-    const gap = baseGap + Math.random() * 200;
+    // Интервалы тоже растут постепенно
+    const baseGap = 380 - difficulty * 100;
+    const gap = baseGap + Math.random() * 220;
     world.nextObstacleX = x + gap;
   }
 
@@ -465,6 +458,7 @@ function update(dt){
   }
   state.score = newScore;
 
+  // Ночной режим каждые 700 очков
   if(!state.night && state.score > 700 && state.score % 700 < 20 && !state.nextNight){
     state.nextNight = true;
     state.nightTimer = 0;
@@ -597,11 +591,10 @@ function render(){
   drawDino(colors.fg);
 }
 
-// ============ ДИНОЗАВР — КОМПАКТНЫЙ И АККУРАТНЫЙ ============
+// ============ ДИНОЗАВР ============
 function drawDino(color){
   const dinoScreenX = W * DINO_SCREEN_X;
   const dinoY = groundY + dino.y;
-  // Масштаб меньше — не раздувается
   const scale = Math.max(1, Math.min(1.6, H / 520));
 
   ctx.save();
@@ -617,42 +610,40 @@ function drawDino(color){
   ctx.restore();
 }
 
-// СТОЯЩИЙ ДИНОЗАВР — 22×24 юнита (×2 = 44×48)
 function drawDinoStand(ctx, color){
   const px = 2;
   const bg = state.night ? COLORS.night.bg : COLORS.day.bg;
 
   ctx.fillStyle = color;
 
-  // === ХВОСТ ===
+  // Хвост
   ctx.fillRect(-4 * px, -17 * px, 4 * px, 2 * px);
   ctx.fillRect(-3 * px, -15 * px, 3 * px, 3 * px);
 
-  // === СПИНА ===
+  // Спина
   ctx.fillRect(0, -20 * px, 6 * px, 3 * px);
   ctx.fillRect(0, -17 * px, 8 * px, 2 * px);
 
-  // === ТЕЛО ===
+  // Тело
   ctx.fillRect(0, -15 * px, 9 * px, 10 * px);
 
-  // === ШЕЯ (короткая) ===
+  // Шея
   ctx.fillRect(6 * px, -22 * px, 4 * px, 5 * px);
 
-  // === ГОЛОВА ===
+  // Голова
   ctx.fillRect(6 * px, -24 * px, 10 * px, 3 * px);
   ctx.fillRect(7 * px, -21 * px, 11 * px, 4 * px);
 
-  // === МОРДА (выступает вправо) ===
+  // Морда
   ctx.fillRect(15 * px, -20 * px, 4 * px, 3 * px);
   ctx.fillRect(16 * px, -17 * px, 4 * px, 2 * px);
 
   // Зуб
   ctx.fillRect(18 * px, -15 * px, 1 * px, 1 * px);
 
-  // === ГЛАЗ ===
+  // Глаз
   ctx.fillStyle = bg;
   ctx.fillRect(13 * px, -23 * px, 3 * px, 3 * px);
-  // Зрачок
   ctx.fillStyle = color;
   ctx.fillRect(14 * px, -22 * px, 2 * px, 2 * px);
 
@@ -660,21 +651,19 @@ function drawDinoStand(ctx, color){
   ctx.fillStyle = bg;
   ctx.fillRect(17 * px, -20 * px, 1 * px, 1 * px);
 
-  // === РУКА ===
+  // Рука
   ctx.fillStyle = color;
   ctx.fillRect(7 * px, -12 * px, 2 * px, 4 * px);
   ctx.fillRect(6 * px, -9 * px, 3 * px, 1 * px);
 
-  // === НОГИ ===
+  // Ноги
   const legAnim = dino.onGround ? dino.animFrame : 1;
   const backUp = legAnim === 0 ? 0 : 2;
   const frontUp = legAnim === 0 ? 2 : 0;
 
-  // Задняя нога
   ctx.fillRect(1 * px, -5 * px, 3 * px, (5 - backUp) * px);
   ctx.fillRect(0, 0, 4 * px, 2 * px);
 
-  // Передняя нога
   ctx.fillRect(5 * px, -5 * px, 3 * px, (5 - frontUp) * px);
   ctx.fillRect(4 * px, 0, 4 * px, 2 * px);
 
@@ -683,7 +672,6 @@ function drawDinoStand(ctx, color){
   ctx.fillRect(4 * px, 2 * px, 2 * px, 1 * px);
 }
 
-// ПРИСЕВШИЙ ДИНОЗАВР — 28×14 юнитов
 function drawDinoDuck(ctx, color){
   const px = 2;
   const bg = state.night ? COLORS.night.bg : COLORS.day.bg;
@@ -693,10 +681,10 @@ function drawDinoDuck(ctx, color){
   // Хвост
   ctx.fillRect(-4 * px, -10 * px, 5 * px, 3 * px);
 
-  // Тело (плоское)
+  // Тело
   ctx.fillRect(0, -11 * px, 13 * px, 11 * px);
 
-  // Голова (выступает вправо)
+  // Голова
   ctx.fillRect(11 * px, -13 * px, 10 * px, 7 * px);
   ctx.fillRect(20 * px, -11 * px, 3 * px, 3 * px);
 
@@ -708,7 +696,7 @@ function drawDinoDuck(ctx, color){
   ctx.fillStyle = color;
   ctx.fillRect(20 * px, -9 * px, 1 * px, 1 * px);
 
-  // Ноги (короткие)
+  // Ноги
   const legAnim = dino.onGround ? dino.animFrame : 0;
   ctx.fillRect(8 * px, 0, 3 * px, (2 + legAnim) * px);
   ctx.fillRect(2 * px, 0, 3 * px, (2 - legAnim) * px);
@@ -725,27 +713,19 @@ function drawCactus(x, y, o, color){
 
   if(isBig){
     const px = 2;
-    // Ствол
     ctx.fillRect(x + 9 * px, y, 7 * px, 26 * px);
-    // Левая ветка
     ctx.fillRect(x + 3 * px, y + 12 * px, 3 * px, 7 * px);
     ctx.fillRect(x + 3 * px, y + 9 * px, 6 * px, 4 * px);
-    // Правая ветка
     ctx.fillRect(x + 18 * px, y + 6 * px, 3 * px, 8 * px);
     ctx.fillRect(x + 15 * px, y + 4 * px, 6 * px, 3 * px);
-    // Верхушка
     ctx.fillRect(x + 10 * px, y - 1 * px, 5 * px, 1 * px);
   } else {
     const px = 2;
-    // Ствол
     ctx.fillRect(x + 6 * px, y, 5 * px, 18 * px);
-    // Левая ветка
     ctx.fillRect(x + 2 * px, y + 8 * px, 3 * px, 5 * px);
     ctx.fillRect(x + 2 * px, y + 6 * px, 5 * px, 3 * px);
-    // Правая ветка
     ctx.fillRect(x + 12 * px, y + 5 * px, 3 * px, 6 * px);
     ctx.fillRect(x + 10 * px, y + 3 * px, 5 * px, 3 * px);
-    // Верхушка
     ctx.fillRect(x + 7 * px, y - 1 * px, 3 * px, 1 * px);
   }
 }
