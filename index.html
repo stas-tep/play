@@ -257,16 +257,16 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
             <div class="game-play-btn">Играть</div>
         </div>
 
-        <!-- Скоро -->
-        <div class="game-row locked">
+        <!-- Dino Run -->
+        <div class="game-row" onclick="launchGame('dino')">
             <div class="game-left">
-                <div class="game-icon">🏃</div>
+                <div class="game-icon">🦖</div>
                 <div class="game-info">
-                    <div class="game-name">Скоро</div>
-                    <div class="game-desc">В разработке</div>
+                    <div class="game-name">Dino Run</div>
+                    <div class="game-desc">Раннер</div>
                 </div>
             </div>
-            <div class="game-play-btn coming">Скоро</div>
+            <div class="game-play-btn">Играть</div>
         </div>
 
         <!-- Скоро -->
@@ -337,11 +337,11 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
 <div class="panel" id="panel-faq">
     <div class="panel-handle"></div>
     <div class="panel-header"><div class="panel-title">ЧАСТЫЕ ВОПРОСЫ</div><div class="panel-close" onclick="closePanel('faq')">✕</div></div>
-    <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Как играть?</span><span class="faq-arrow">▼</span></div><div class="faq-answer">Выбери игру из списка и нажми «Играть». Mario Run — горизонтально, Block Blast — вертикально.</div></div>
+    <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Как играть?</span><span class="faq-arrow">▼</span></div><div class="faq-answer">Выбери игру из списка и нажми «Играть». Mario и Dino — горизонтально, Block Blast — вертикально.</div></div>
     <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Работает без интернета?</span><span class="faq-arrow">▼</span></div><div class="faq-answer">Да, все игры работают офлайн. Прогресс сохраняется в браузере.</div></div>
-    <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Почему не открывается игра?</span><span class="faq-arrow">▼</span></div><div class="faq-answer">Проверь, что файл игры лежит в той же папке, что и меню. Игры «Скоро» ещё не вышли.</div></div>
+    <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Почему не открывается игра?</span><span class="faq-arrow">▼</span></div><div class="faq-answer">Проверь, что HTML-файл игры лежит в той же папке, что и меню. Игры «Скоро» ещё не вышли.</div></div>
     <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Будут новые игры?</span><span class="faq-arrow">▼</span></div><div class="faq-answer">Да! Следи за разделом 📢 Обновления.</div></div>
-    <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Как сохраняется рекорд?</span><span class="faq-arrow">▼</span></div><div class="faq-answer">В Block Blast рекорд сохраняется локально в браузере. Не очищай данные сайта.</div></div>
+    <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Как сохраняется рекорд?</span><span class="faq-arrow">▼</span></div><div class="faq-answer">В Block Blast и Dino Run рекорд сохраняется локально. Не очищай данные сайта.</div></div>
 </div>
 
 <!-- ПАНЕЛЬ: ОБНОВЛЕНИЯ -->
@@ -352,13 +352,27 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
 
     <div class="updates-intro">История версий Game Hub 🎮</div>
 
+    <!-- Dino Run -->
+    <div class="update-item">
+        <div class="update-head">
+            <div class="update-version">v1.3 <span class="dot">·</span> Dino Run</div>
+            <div class="update-date">7 окт 2026</div>
+        </div>
+        <div class="update-tag tag-new">НОВОЕ</div>
+        <ul class="update-list">
+            <li>Добавлена игра <em>Dino Run</em> 🦖</li>
+            <li>Раннер с кактусами и птеродактилями</li>
+            <li>Ночной режим, рекорд, звуки и вибрация</li>
+        </ul>
+    </div>
+
     <!-- Block Blast -->
     <div class="update-item">
         <div class="update-head">
             <div class="update-version">v1.2 <span class="dot">·</span> Block Blast</div>
             <div class="update-date">7 окт 2026</div>
         </div>
-        <div class="update-tag tag-new">НОВОЕ</div>
+        <div class="update-tag tag-update">ОБНОВЛЕНИЕ</div>
         <ul class="update-list">
             <li>Добавлена игра <em>Block Blast</em> 🧩</li>
             <li>Головоломка с расстановкой фигур на поле 8×8</li>
@@ -410,7 +424,8 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
 /* Игры */
 const GAMES = {
   mario:      { file: 'mario.html',      name: 'Mario Run',   landscape: true  },
-  blockblast: { file: 'blockblast.html', name: 'Block Blast', landscape: false }
+  blockblast: { file: 'blockblast.html', name: 'Block Blast', landscape: false },
+  dino:       { file: 'dino.html',       name: 'Dino Run',    landscape: true  }
 };
 
 /* Снег */
@@ -442,20 +457,20 @@ function closePanel(name){
   document.getElementById('panel-' + name).classList.remove('active');
 }
 
-/* Запуск игры с анимацией поворота (только для landscape-игр) */
+/* Запуск игры */
 function launchGame(id){
   const game = GAMES[id];
   if(!game) return;
 
   if(navigator.vibrate) navigator.vibrate(30);
 
-  // Если игра портретная — сразу переходим
+  // Портретная игра — сразу запускаем
   if(!game.landscape){
     window.location.href = game.file;
     return;
   }
 
-  // Иначе — показываем анимацию поворота
+  // Ландшафтная — показываем анимацию поворота
   const overlay = document.getElementById('rotate-overlay');
   overlay.classList.remove('fade-out');
   overlay.classList.add('show');
