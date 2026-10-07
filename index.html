@@ -13,7 +13,7 @@
 html,body{height:100%;overscroll-behavior:none}
 body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100vh;min-height:100dvh;display:flex;justify-content:center;align-items:center;padding:20px;color:#fff}
 
-/* ============ РАМКА ТЕЛЕФОНА ============ */
+/* Рамка телефона */
 .phone-frame{
   width:375px;height:812px;
   background:linear-gradient(160deg,#0a1030 0%,#0d1440 50%,#080c28 100%);
@@ -35,7 +35,7 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
   .game-name{font-size:16px}
 }
 
-/* ============ АВРОРА ============ */
+/* Аврора */
 .aurora{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
 .aurora-blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.55}
 .blob-1{width:280px;height:280px;background:radial-gradient(circle,#3b82f6 0%,transparent 70%);top:-80px;left:-80px;animation:float1 18s ease-in-out infinite}
@@ -45,16 +45,16 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
 @keyframes float2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-50px,-40px) scale(1.1)}}
 @keyframes float3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(30px,-50px) scale(1.2)}}
 
-/* ============ СНЕГ ============ */
+/* Снег */
 .snow{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1}
 .snowflake{position:absolute;top:-20px;color:#fff;user-select:none;pointer-events:none;animation:fall linear infinite;opacity:0}
 @keyframes fall{0%{transform:translateY(-20px) translateX(0) rotate(0deg);opacity:0}10%{opacity:var(--opacity,.7)}90%{opacity:var(--opacity,.7)}100%{transform:translateY(880px) translateX(var(--drift,0)) rotate(360deg);opacity:0}}
 
-/* ============ ЭКРАН ============ */
+/* Экран */
 .screen{position:relative;z-index:3;height:100%;overflow-y:auto;padding:50px 18px 220px;display:flex;flex-direction:column;-webkit-overflow-scrolling:touch}
 .screen::-webkit-scrollbar{display:none}.screen{scrollbar-width:none}
 
-/* ============ ЗАГОЛОВОК ============ */
+/* Заголовок */
 .title-section{text-align:center;margin-bottom:32px;position:relative;z-index:3}
 .title-label{font-size:10px;text-transform:uppercase;letter-spacing:5px;color:rgba(147,197,253,.75);font-weight:700;margin-bottom:14px;position:relative;display:inline-block;padding:0 30px}
 .title-label::before,.title-label::after{content:'';position:absolute;top:50%;width:20px;height:1px;background:linear-gradient(90deg,transparent,rgba(147,197,253,.5),transparent)}
@@ -63,7 +63,7 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
 @keyframes shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
 .title-sub{font-size:12px;font-weight:700;color:rgba(255,255,255,.65);letter-spacing:3px;text-transform:uppercase}
 
-/* ============ СПИСОК ИГР ============ */
+/* Список игр */
 .games-list{display:flex;flex-direction:column;gap:0;margin-bottom:26px;position:relative;z-index:3}
 .game-row{display:flex;justify-content:space-between;align-items:center;padding:18px 4px;cursor:pointer;transition:.25s;text-decoration:none;color:inherit;border-bottom:1px solid rgba(147,197,253,.08);position:relative}
 .game-row:last-child{border-bottom:none}
@@ -80,19 +80,18 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
 .game-desc{font-size:11px;font-weight:600;color:rgba(147,197,253,.7);letter-spacing:1.5px;text-transform:uppercase}
 .game-play-btn{font-size:10px;font-weight:800;color:rgba(147,197,253,.9);letter-spacing:1.5px;text-transform:uppercase;padding:7px 14px;background:rgba(147,197,253,.06);border:1px solid rgba(147,197,253,.3);border-radius:100px;transition:.25s;white-space:nowrap}
 .game-play-btn.coming{color:rgba(255,255,255,.5);border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.04);letter-spacing:2px}
-.game-badge{position:absolute;top:8px;right:12px;font-size:8px;font-weight:900;letter-spacing:1.5px;padding:3px 8px;background:linear-gradient(135deg,#ef4444,#f59e0b);color:#fff;border-radius:100px;box-shadow:0 4px 10px rgba(239,68,68,.5)}
 
-/* ============ ИКОНКИ ВНИЗУ ============ */
+/* Иконки внизу */
 .gifts-row{display:flex;justify-content:center;align-items:center;padding:0 18px;margin-bottom:20px;position:relative;z-index:3}
 .gift{font-size:80px;line-height:1;display:block;filter:drop-shadow(0 8px 12px rgba(0,0,0,.6)) drop-shadow(0 0 20px rgba(147,197,253,.5));animation:giftFloat 3s ease-in-out infinite;cursor:pointer;transition:.25s;user-select:none;position:relative}
 .gift:hover,.gift:active{filter:drop-shadow(0 12px 18px rgba(0,0,0,.7)) drop-shadow(0 0 30px rgba(147,197,253,.9));transform:scale(1.1)}
 @keyframes giftFloat{0%,100%{translate:0 0}50%{translate:0 -8px}}
 
-/* ============ СУГРОБЫ ============ */
+/* Сугробы */
 .snowdrift{position:absolute;bottom:0;left:0;right:0;height:200px;z-index:5;pointer-events:none;overflow:hidden}
 .snowdrift-svg{position:absolute;bottom:0;left:0;width:100%;height:100%;display:block;pointer-events:none}
 
-/* ============ КНОПКИ НА СНЕГУ ============ */
+/* Кнопки на снегу */
 .drift-buttons{position:absolute;bottom:35px;left:0;right:0;display:flex;justify-content:center;align-items:flex-end;gap:9px;padding:0 26px;z-index:50;pointer-events:none}
 .drift-btn{flex:1;max-width:96px;padding:13px 6px;background:rgba(255,255,255,.98);border-radius:16px;text-align:center;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease;box-shadow:0 8px 20px rgba(0,0,0,.35),0 0 0 1px rgba(147,197,253,.4),inset 0 -3px 0 rgba(147,197,253,.3);position:relative;user-select:none;pointer-events:auto;touch-action:manipulation;-webkit-user-select:none;-webkit-touch-callout:none}
 @media (hover:hover){
@@ -108,7 +107,7 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
 .drift-btn-main .drift-btn-icon{font-size:17px}
 .drift-btn-main .drift-btn-title{color:#fff;font-size:12px}
 
-/* ============ ПАНЕЛИ ============ */
+/* Панели */
 .panel-overlay{position:absolute;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:100;opacity:0;visibility:hidden;transition:.3s;border-radius:46px}
 .panel-overlay.active{opacity:1;visibility:visible}
 .panel{position:absolute;left:16px;right:16px;bottom:0;max-height:85%;background:linear-gradient(180deg,#101838 0%,#0a1030 100%);border-radius:32px 32px 46px 46px;border-top:1px solid rgba(147,197,253,.3);padding:20px 20px 40px;z-index:101;transform:translateY(100%);transition:transform .4s cubic-bezier(.34,1.2,.64,1);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
@@ -160,7 +159,7 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
 .update-list li strong{color:#facc15;font-weight:800}
 .update-list li em{color:#93c5fd;font-style:normal;font-weight:700}
 
-/* ============ АНИМАЦИЯ ПОВОРОТА ПЕРЕД ИГРОЙ ============ */
+/* Анимация поворота перед игрой */
 #rotate-overlay{
   position:absolute;inset:0;z-index:999;
   background:linear-gradient(160deg,#0a1030,#1a2050,#05060f);
@@ -189,8 +188,6 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
 }
 .rotate-loading-sub{font-size:13px;color:rgba(255,255,255,.7);line-height:1.6;max-width:280px;margin-bottom:32px}
 .rotate-loading-sub strong{color:#93c5fd;font-weight:800}
-
-/* Прогресс-бар загрузки */
 .rotate-progress{
   width:220px;height:6px;
   background:rgba(255,255,255,.1);
@@ -236,7 +233,7 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
     </div>
 
     <div class="games-list">
-        <!-- 🍄 Mario — играбельная -->
+        <!-- Mario Run -->
         <div class="game-row" onclick="launchGame('mario')">
             <div class="game-left">
                 <div class="game-icon">🍄</div>
@@ -248,19 +245,19 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
             <div class="game-play-btn">Играть</div>
         </div>
 
-        <!-- Скоро 1 -->
-        <div class="game-row locked">
+        <!-- Block Blast -->
+        <div class="game-row" onclick="launchGame('blockblast')">
             <div class="game-left">
-                <div class="game-icon">💨</div>
+                <div class="game-icon">🧩</div>
                 <div class="game-info">
-                    <div class="game-name">Скоро</div>
-                    <div class="game-desc">В разработке</div>
+                    <div class="game-name">Block Blast</div>
+                    <div class="game-desc">Головоломка</div>
                 </div>
             </div>
-            <div class="game-play-btn coming">Скоро</div>
+            <div class="game-play-btn">Играть</div>
         </div>
 
-        <!-- Скоро 2 -->
+        <!-- Скоро -->
         <div class="game-row locked">
             <div class="game-left">
                 <div class="game-icon">🏃</div>
@@ -272,7 +269,7 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
             <div class="game-play-btn coming">Скоро</div>
         </div>
 
-        <!-- Скоро 3 -->
+        <!-- Скоро -->
         <div class="game-row locked">
             <div class="game-left">
                 <div class="game-icon">🚀</div>
@@ -286,9 +283,7 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
     </div>
 
     <div class="gifts-row">
-        <div class="gift" onclick="openPanel('updates')">
-            📢
-        </div>
+        <div class="gift" onclick="openPanel('updates')">📢</div>
     </div>
 </div>
 
@@ -309,7 +304,7 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
     <div class="drift-btn" onclick="openPanel('faq')"><span class="drift-btn-icon">❓</span><div class="drift-btn-title">FAQ</div></div>
 </div>
 
-<!-- ===== ПАНЕЛЬ: НАСТРОЙКИ ===== -->
+<!-- ПАНЕЛЬ: НАСТРОЙКИ -->
 <div class="panel-overlay" id="overlay-settings" onclick="closePanel('settings')"></div>
 <div class="panel" id="panel-settings">
     <div class="panel-handle"></div>
@@ -337,52 +332,55 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
     </div>
 </div>
 
-<!-- ===== ПАНЕЛЬ: FAQ ===== -->
+<!-- ПАНЕЛЬ: FAQ -->
 <div class="panel-overlay" id="overlay-faq" onclick="closePanel('faq')"></div>
 <div class="panel" id="panel-faq">
     <div class="panel-handle"></div>
     <div class="panel-header"><div class="panel-title">ЧАСТЫЕ ВОПРОСЫ</div><div class="panel-close" onclick="closePanel('faq')">✕</div></div>
-    <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Как играть?</span><span class="faq-arrow">▼</span></div><div class="faq-answer">Выбери игру из списка и нажми «Играть». Для игр нужен горизонтальный режим телефона.</div></div>
+    <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Как играть?</span><span class="faq-arrow">▼</span></div><div class="faq-answer">Выбери игру из списка и нажми «Играть». Mario Run — горизонтально, Block Blast — вертикально.</div></div>
     <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Работает без интернета?</span><span class="faq-arrow">▼</span></div><div class="faq-answer">Да, все игры работают офлайн. Прогресс сохраняется в браузере.</div></div>
-    <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Почему не открывается игра?</span><span class="faq-arrow">▼</span></div><div class="faq-answer">Проверь, что у тебя есть файл игры (например mario.html) в той же папке, что и меню. Игры «Скоро» ещё не вышли.</div></div>
+    <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Почему не открывается игра?</span><span class="faq-arrow">▼</span></div><div class="faq-answer">Проверь, что файл игры лежит в той же папке, что и меню. Игры «Скоро» ещё не вышли.</div></div>
     <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Будут новые игры?</span><span class="faq-arrow">▼</span></div><div class="faq-answer">Да! Следи за разделом 📢 Обновления.</div></div>
-    <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Можно играть с друзьями?</span><span class="faq-arrow">▼</span></div><div class="faq-answer">Пока нет, но мультиплеер в планах.</div></div>
+    <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-question"><span>Как сохраняется рекорд?</span><span class="faq-arrow">▼</span></div><div class="faq-answer">В Block Blast рекорд сохраняется локально в браузере. Не очищай данные сайта.</div></div>
 </div>
 
-<!-- ===== ПАНЕЛЬ: ОБНОВЛЕНИЯ ===== -->
+<!-- ПАНЕЛЬ: ОБНОВЛЕНИЯ -->
 <div class="panel-overlay" id="overlay-updates" onclick="closePanel('updates')"></div>
 <div class="panel" id="panel-updates">
     <div class="panel-handle"></div>
     <div class="panel-header"><div class="panel-title">ОБНОВЛЕНИЯ</div><div class="panel-close" onclick="closePanel('updates')">✕</div></div>
 
-    <div class="updates-intro">Что нового в Game Hub 🎮</div>
+    <div class="updates-intro">История версий Game Hub 🎮</div>
 
+    <!-- Block Blast -->
     <div class="update-item">
         <div class="update-head">
-            <div class="update-version">v1.2 <span class="dot">·</span> Mario</div>
-            <div class="update-date">6 окт 2026</div>
+            <div class="update-version">v1.2 <span class="dot">·</span> Block Blast</div>
+            <div class="update-date">7 окт 2026</div>
         </div>
         <div class="update-tag tag-new">НОВОЕ</div>
         <ul class="update-list">
-            <li>Запущена игра <em>Mario Run</em> 🍄</li>
-            <li>Анимация поворота телефона перед запуском</li>
-            <li>В меню только 4 игры — 3 пока в разработке</li>
+            <li>Добавлена игра <em>Block Blast</em> 🧩</li>
+            <li>Головоломка с расстановкой фигур на поле 8×8</li>
+            <li>Звуки, вибрация и сохранение рекорда</li>
         </ul>
     </div>
 
+    <!-- Mario Run -->
     <div class="update-item">
         <div class="update-head">
-            <div class="update-version">v1.1 <span class="dot">·</span> Зимний сезон</div>
+            <div class="update-version">v1.1 <span class="dot">·</span> Mario Run</div>
             <div class="update-date">6 окт 2026</div>
         </div>
         <div class="update-tag tag-update">ОБНОВЛЕНИЕ</div>
         <ul class="update-list">
-            <li>Добавлен раздел <em>«Обновления»</em></li>
-            <li>Иконка 📢 на главном экране</li>
-            <li>Панель настроек звука и вибрации</li>
+            <li>Добавлена игра <em>Mario Run</em> 🍄</li>
+            <li>Платформер с врагами, бонусами и финальной анимацией</li>
+            <li>Гриб-увеличение, звезда неуязвимости, музыка</li>
         </ul>
     </div>
 
+    <!-- Запуск -->
     <div class="update-item">
         <div class="update-head">
             <div class="update-version">v1.0 <span class="dot">·</span> Запуск</div>
@@ -392,27 +390,16 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
         <ul class="update-list">
             <li>Первый релиз <em>Game Hub</em> 🎉</li>
             <li>Зимний дизайн: аврора, снег, сугробы</li>
-        </ul>
-    </div>
-
-    <div class="update-item">
-        <div class="update-head">
-            <div class="update-version">🔮 Скоро</div>
-        </div>
-        <div class="update-tag tag-fix">В РАЗРАБОТКЕ</div>
-        <ul class="update-list">
-            <li>3 новые игры</li>
-            <li>Таблица рекордов</li>
-            <li>Мультиплеер</li>
+            <li>Меню игр, настройки, FAQ</li>
         </ul>
     </div>
 </div>
 
-<!-- ===== ОВЕРЛЕЙ АНИМАЦИИ ПОВОРОТА ===== -->
+<!-- ОВЕРЛЕЙ АНИМАЦИИ ПОВОРОТА -->
 <div id="rotate-overlay">
     <div class="rotate-phone-icon">📱</div>
-    <div class="rotate-loading-title" id="rotate-title">ПОВЕРНИ ТЕЛЕФОН</div>
-    <div class="rotate-loading-sub" id="rotate-sub">Для игры нужен <strong>горизонтальный режим</strong>.<br>Поверни телефон на 90° — запуск через 5 секунд.</div>
+    <div class="rotate-loading-title">ПОВЕРНИ ТЕЛЕФОН</div>
+    <div class="rotate-loading-sub">Для игры нужен <strong>горизонтальный режим</strong>.<br>Поверни телефон на 90° — запуск через 5 секунд.</div>
     <div class="rotate-progress"><div class="rotate-progress-fill" id="rotate-progress"></div></div>
     <div class="rotate-hint-bottom">LANDSCAPE MODE</div>
 </div>
@@ -420,12 +407,13 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
 </div>
 
 <script>
-/* ============ ИГРЫ ============ */
+/* Игры */
 const GAMES = {
-  mario:  { file: 'mario.html',  name: 'Mario Run' }
+  mario:      { file: 'mario.html',      name: 'Mario Run',   landscape: true  },
+  blockblast: { file: 'blockblast.html', name: 'Block Blast', landscape: false }
 };
 
-/* ============ СНЕГ ============ */
+/* Снег */
 (function(){
   const c = document.getElementById('snow');
   const f = ['❄','❅','❆','•','·'];
@@ -443,7 +431,7 @@ const GAMES = {
   }
 })();
 
-/* ============ ПАНЕЛИ ============ */
+/* Панели */
 function openPanel(name){
   document.getElementById('overlay-' + name).classList.add('active');
   document.getElementById('panel-' + name).classList.add('active');
@@ -454,50 +442,48 @@ function closePanel(name){
   document.getElementById('panel-' + name).classList.remove('active');
 }
 
-/* ============ ЗАПУСК ИГРЫ С АНИМАЦИЕЙ ПОВОРОТА ============ */
+/* Запуск игры с анимацией поворота (только для landscape-игр) */
 function launchGame(id){
   const game = GAMES[id];
   if(!game) return;
 
-  // Вибрация
   if(navigator.vibrate) navigator.vibrate(30);
 
-  // Показываем оверлей
+  // Если игра портретная — сразу переходим
+  if(!game.landscape){
+    window.location.href = game.file;
+    return;
+  }
+
+  // Иначе — показываем анимацию поворота
   const overlay = document.getElementById('rotate-overlay');
   overlay.classList.remove('fade-out');
   overlay.classList.add('show');
 
-  // Прогресс-бар на 5 секунд
   const progress = document.getElementById('rotate-progress');
   progress.style.width = '0%';
 
-  const duration = 5000; // 5 секунд
+  const duration = 5000;
   const start = performance.now();
   let cancelled = false;
 
-  function tickProgress(now){
+  function tick(now){
     if(cancelled) return;
     const elapsed = now - start;
     const pct = Math.min(100, (elapsed / duration) * 100);
     progress.style.width = pct + '%';
-    if(elapsed < duration){
-      requestAnimationFrame(tickProgress);
-    }
+    if(elapsed < duration) requestAnimationFrame(tick);
   }
-  requestAnimationFrame(tickProgress);
+  requestAnimationFrame(tick);
 
-  // Через 5 сек — переход
   setTimeout(() => {
     cancelled = true;
     overlay.classList.add('fade-out');
-    // Небольшая задержка на затухание, потом переход
-    setTimeout(() => {
-      window.location.href = game.file;
-    }, 300);
+    setTimeout(() => { window.location.href = game.file; }, 300);
   }, duration);
 }
 
-/* ============ НАСТРОЙКИ ============ */
+/* Настройки */
 function toggleSwitch(el){
   el.classList.toggle('on');
   if(navigator.vibrate) navigator.vibrate(10);
@@ -509,7 +495,7 @@ function cycleControl(el){
   if(navigator.vibrate) navigator.vibrate(10);
 }
 
-/* ============ СВАЙП ВНИЗ ПО ПАНЕЛИ ============ */
+/* Свайп вниз по панели */
 (function(){
   document.querySelectorAll('.panel').forEach(panel => {
     let startY = 0, deltaY = 0, dragging = false;
@@ -545,7 +531,7 @@ function cycleControl(el){
   });
 })();
 
-/* ============ ЗАПРЕТ ДВОЙНОГО ТАПА ============ */
+/* Запрет двойного тапа */
 let lastTouchEnd = 0;
 document.addEventListener('touchend', (e) => {
   const now = Date.now();
