@@ -1,61 +1,118 @@
-<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#5c94fc">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="format-detection" content="telephone=no">
 <title>Mario Run</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
-html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Segoe UI',sans-serif;overscroll-behavior:none}
-body{position:fixed;inset:0}
-#rotate{position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,#0a1030,#1a2050,#05060f);display:none;flex-direction:column;justify-content:center;align-items:center;color:#fff;padding:30px;text-align:center}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Segoe UI',-apple-system,sans-serif;overscroll-behavior:none;position:fixed}
+body{inset:0}
+
+/* ЭКРАН ПОВОРОТА */
+#rotate{position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,#0a1030,#1a2050,#05060f);display:none;flex-direction:column;justify-content:center;align-items:center;color:#fff;padding:30px;text-align:center;padding-top:calc(30px + env(safe-area-inset-top))}
 #rotate.show{display:flex}
 .rotate-icon{font-size:80px;margin-bottom:30px;animation:rot 2.5s ease-in-out infinite;filter:drop-shadow(0 0 30px rgba(147,197,253,.6))}
 @keyframes rot{0%,20%{transform:rotate(0)}50%,70%{transform:rotate(-90deg)}100%{transform:rotate(-90deg)}}
 .rotate-title{font-size:22px;font-weight:900;letter-spacing:2px;margin-bottom:14px;background:linear-gradient(110deg,#fff,#93c5fd);-webkit-background-clip:text;background-clip:text;color:transparent}
 .rotate-text{font-size:13px;color:rgba(255,255,255,.65);line-height:1.6;max-width:280px}
 .rotate-hint{margin-top:30px;font-size:11px;color:rgba(147,197,253,.6);letter-spacing:2px;text-transform:uppercase;font-weight:700}
-#canvas{position:absolute;inset:0;width:100%;height:100%;display:block;outline:none;touch-action:none;image-rendering:pixelated}
-#hud{position:absolute;top:0;left:0;right:0;padding:10px 14px;padding-top:calc(10px + env(safe-area-inset-top));padding-left:calc(14px + env(safe-area-inset-left));padding-right:calc(14px + env(safe-area-inset-right));display:flex;justify-content:space-between;align-items:center;z-index:20;pointer-events:none}
+
+/* CANVAS */
+#canvas{position:absolute;inset:0;width:100%;height:100%;display:block;outline:none;touch-action:none;-webkit-touch-callout:none;image-rendering:pixelated}
+
+/* HUD — учитываем safe-area для iPhone */
+#hud{
+  position:absolute;top:0;left:0;right:0;
+  padding:10px 14px;
+  padding-top:calc(10px + env(safe-area-inset-top, 0px));
+  padding-left:calc(14px + env(safe-area-inset-left, 0px));
+  padding-right:calc(14px + env(safe-area-inset-right, 0px));
+  display:flex;justify-content:space-between;align-items:center;
+  z-index:20;pointer-events:none;
+}
 .hud-left{display:flex;gap:3px;align-items:center;pointer-events:auto}
 .heart{width:22px;height:22px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.6))}
 .hud-center{display:flex;gap:12px;align-items:center;color:#fff;font-weight:900;letter-spacing:1.5px;text-shadow:0 2px 6px rgba(0,0,0,.8);font-family:'Courier New',monospace;font-size:13px}
 .hud-item{display:flex;align-items:center;gap:4px}
 .hud-icon{font-size:14px}
 .hud-right{display:flex;gap:6px;align-items:center;pointer-events:auto}
-.hud-btn{width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,.5);border:2px solid rgba(255,255,255,.4);color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;font-weight:900}
+.hud-btn{width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,.5);border:2px solid rgba(255,255,255,.4);color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;font-weight:900;-webkit-appearance:none}
 .hud-btn:active{transform:scale(.9);background:rgba(0,0,0,.8)}
 .hud-btn.close{background:rgba(220,38,38,.6);border-color:rgba(248,113,113,.8)}
-#star-bar{position:absolute;top:calc(54px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:160px;height:7px;background:rgba(0,0,0,.5);border-radius:4px;overflow:hidden;z-index:20;display:none;border:1px solid rgba(255,255,255,.35)}
+
+/* STAR BAR */
+#star-bar{position:absolute;top:calc(54px + env(safe-area-inset-top, 0px));left:50%;transform:translateX(-50%);width:160px;height:7px;background:rgba(0,0,0,.5);border-radius:4px;overflow:hidden;z-index:20;display:none;border:1px solid rgba(255,255,255,.35)}
 #star-bar.show{display:block}
 #star-fill{height:100%;background:linear-gradient(90deg,#facc15,#f472b6,#60a5fa,#4ade80);background-size:200% 100%;animation:rb .8s linear infinite;border-radius:4px}
 @keyframes rb{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+
+/* КНОПКИ УПРАВЛЕНИЯ — учитывают safe-area iPhone */
 #controls{position:absolute;inset:0;z-index:20;pointer-events:none}
-.ctrl{position:absolute;pointer-events:auto;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:26px;font-weight:900;cursor:pointer;touch-action:none;transition:transform .08s,background .08s;text-shadow:0 2px 4px rgba(0,0,0,.5)}
-.ctrl.active{transform:scale(.88);background:rgba(255,255,255,.4)}
-#btn-left{left:calc(16px + env(safe-area-inset-left));bottom:calc(16px + env(safe-area-inset-bottom))}
-#btn-right{left:calc(100px + env(safe-area-inset-left));bottom:calc(16px + env(safe-area-inset-bottom))}
-#btn-jump{right:calc(16px + env(safe-area-inset-right));bottom:calc(16px + env(safe-area-inset-bottom));width:96px;height:96px;font-size:42px;background:rgba(239,68,68,.5);border-color:rgba(248,113,113,.9);font-weight:900;line-height:1}
-#kb-hints{position:absolute;bottom:calc(12px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:25;display:flex;gap:12px;color:rgba(255,255,255,.7);font-size:10px;font-family:'Courier New',monospace;pointer-events:none;opacity:0;transition:opacity .5s;flex-wrap:wrap;justify-content:center}
+.ctrl{
+  position:absolute;pointer-events:auto;
+  width:70px;height:70px;border-radius:50%;
+  background:rgba(255,255,255,.15);
+  border:2px solid rgba(255,255,255,.5);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:26px;font-weight:900;
+  cursor:pointer;touch-action:none;
+  transition:transform .08s,background .08s;
+  text-shadow:0 2px 4px rgba(0,0,0,.5);
+  -webkit-appearance:none;-webkit-user-select:none;
+}
+.ctrl.active{transform:scale(.88);background:rgba(255,255,255,.45)}
+#btn-left{
+  left:calc(16px + env(safe-area-inset-left, 0px));
+  bottom:calc(16px + env(safe-area-inset-bottom, 0px));
+}
+#btn-right{
+  left:calc(100px + env(safe-area-inset-left, 0px));
+  bottom:calc(16px + env(safe-area-inset-bottom, 0px));
+}
+#btn-jump{
+  right:calc(16px + env(safe-area-inset-right, 0px));
+  bottom:calc(16px + env(safe-area-inset-bottom, 0px));
+  width:96px;height:96px;font-size:42px;
+  background:rgba(239,68,68,.55);
+  border-color:rgba(248,113,113,.9);
+  font-weight:900;line-height:1;
+}
+
+/* ПОДСКАЗКИ ПК */
+#kb-hints{position:absolute;bottom:calc(12px + env(safe-area-inset-bottom, 0px));left:50%;transform:translateX(-50%);z-index:25;display:flex;gap:12px;color:rgba(255,255,255,.7);font-size:10px;font-family:'Courier New',monospace;pointer-events:none;opacity:0;transition:opacity .5s;flex-wrap:wrap;justify-content:center}
 #kb-hints.show{opacity:1}
 #kb-hints .k{display:inline-block;padding:2px 5px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.3);border-radius:4px;margin-right:2px;font-weight:700;color:#fff}
-#msg-screen{position:absolute;inset:0;z-index:50;display:none;flex-direction:column;justify-content:center;align-items:center;background:rgba(0,0,0,.85);color:#fff;text-align:center;padding:30px}
+
+/* ЭКРАН СООБЩЕНИЙ */
+#msg-screen{position:absolute;inset:0;z-index:50;display:none;flex-direction:column;justify-content:center;align-items:center;background:rgba(0,0,0,.85);color:#fff;text-align:center;padding:30px;padding-top:calc(30px + env(safe-area-inset-top, 0px));padding-bottom:calc(30px + env(safe-area-inset-bottom, 0px))}
 #msg-screen.show{display:flex}
 .msg-icon{font-size:72px;margin-bottom:20px;filter:drop-shadow(0 0 25px rgba(250,204,21,.6))}
 .msg-title{font-size:36px;font-weight:900;letter-spacing:4px;margin-bottom:12px;background:linear-gradient(110deg,#fff,#facc15);-webkit-background-clip:text;background-clip:text;color:transparent;text-transform:uppercase}
 .msg-sub{font-size:14px;color:rgba(255,255,255,.75);line-height:1.5;margin-bottom:28px}
-.msg-btn{padding:15px 40px;border-radius:14px;background:linear-gradient(135deg,#ef4444,#dc2626);border:none;color:#fff;font-family:inherit;font-weight:900;font-size:14px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;touch-action:manipulation;margin:0 6px}
+.msg-btn{padding:15px 40px;border-radius:14px;background:linear-gradient(135deg,#ef4444,#dc2626);border:none;color:#fff;font-family:inherit;font-weight:900;font-size:14px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;touch-action:manipulation;margin:0 6px;-webkit-appearance:none}
 .msg-btn.blue{background:linear-gradient(135deg,#3b82f6,#2563eb)}
 .msg-btn:active{transform:scale(.95)}
 .msg-buttons{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
-@media (max-height:420px){
-  .ctrl{width:60px;height:60px;font-size:22px}
-  #btn-jump{width:80px;height:80px;font-size:34px}
+
+/* iPhone в ландшафте — уменьшаем кнопки */
+@media (max-height:430px){
+  .ctrl{width:64px;height:64px;font-size:24px}
+  #btn-jump{width:88px;height:88px;font-size:38px}
+  #btn-right{left:calc(92px + env(safe-area-inset-left, 0px))}
   .hud-btn{width:34px;height:34px;font-size:14px}
-  .heart{width:18px;height:18px}
+  .heart{width:20px;height:20px}
+  .hud-center{font-size:12px;gap:8px}
+}
+@media (max-height:380px){
+  .ctrl{width:56px;height:56px;font-size:20px}
+  #btn-jump{width:78px;height:78px;font-size:32px}
+  #btn-right{left:calc(80px + env(safe-area-inset-left, 0px))}
+  #btn-left{left:calc(10px + env(safe-area-inset-left, 0px))}
+  .heart{width:16px;height:16px}
 }
 </style>
 </head>
@@ -118,6 +175,7 @@ const ACCEL = 2200;
 const FRICTION = 1900;
 const AIR_ACCEL = 1300;
 const STAR_DURATION = 8;
+const JUMP_BUFFER_TIME = 0.15; // 150мс — буфер прыжка для мобильных
 
 const C = {
   sky:'#5C94FC',
@@ -151,7 +209,8 @@ let lastTime = 0;
 let currentDpr = 1;
 const particles = [];
 const keys = {left:false, right:false, jump:false};
-const jumpBuffer = {pressed:false};
+// ДЖИТТЕР-БУФЕР прыжка — сохраняем тап даже после отпускания
+const jumpBuffer = {pressed:false, timer:0};
 
 const finish = {
   active: false,
@@ -375,6 +434,7 @@ class Player {
     this.deadTimer = 0;
     this.invuln = 0;
     this.jumpHeld = false;
+    this.jumpHoldTime = 0;
     this.star = 0;
     this.frozen = false;
     this.hidden = false;
@@ -398,6 +458,12 @@ class Player {
   setStar(){ this.star = STAR_DURATION; sfx.star(); Music.tempo(1.6); }
 
   update(dt){
+    // Тик буфера прыжка
+    if(jumpBuffer.timer > 0){
+      jumpBuffer.timer -= dt;
+      if(jumpBuffer.timer <= 0) jumpBuffer.pressed = false;
+    }
+
     if(this.dead){
       this.deadTimer += dt;
       this.vy += GRAVITY * dt;
@@ -449,19 +515,33 @@ class Player {
     }
     this.vx = Math.max(-maxSpeed, Math.min(maxSpeed, this.vx));
 
+    // ПРЫЖОК — с буфером
     if(jumpBuffer.pressed && this.onGround){
       this.vy = JUMP_VELOCITY * (this.isBig ? 1.05 : 1);
       this.onGround = false;
       this.jumpHeld = true;
+      this.jumpHoldTime = 0;
+      jumpBuffer.pressed = false;
+      jumpBuffer.timer = 0;
       sfx.jump();
     }
-    jumpBuffer.pressed = false;
 
-    if(this.jumpHeld && !keys.jump && this.vy < 0){
-      this.vy *= 0.5;
-      this.jumpHeld = false;
+    // УДЕРЖАНИЕ ПРЫЖКА — переменная высота
+    // На мобильных тап короткий, поэтому даём минимальное время удержания
+    if(this.jumpHeld){
+      this.jumpHoldTime += dt;
+      // Если игрок отпустил кнопку ИЛИ время удержания меньше 0.08с — обрезаем высоту
+      if(!keys.jump && this.jumpHoldTime > 0.08){
+        if(this.vy < 0){
+          this.vy *= 0.5;
+        }
+        this.jumpHeld = false;
+      }
+      // Максимальное время удержания — 0.5с
+      if(this.jumpHoldTime > 0.5){
+        this.jumpHeld = false;
+      }
     }
-    if(!keys.jump) this.jumpHeld = false;
 
     this.vy += GRAVITY * dt;
     if(this.vy > MAX_FALL) this.vy = MAX_FALL;
@@ -1123,14 +1203,18 @@ function drawParticles(ctx){
   });
 }
 
-// ============ ФОН ============
+// ============ ФОН — НЕБО НЕ ДВИГАЕТСЯ ============
 function drawBackground(){
+  // Небо — всегда от 0,0 до clientWidth/clientHeight (НЕ зависит от камеры)
   ctx.fillStyle = C.sky;
   ctx.fillRect(0, 0, canvas.clientWidth, canvas.clientHeight);
 
   const zoom = getZoom();
-  const groundScreenY = (13 * TILE - camY) * zoom;
+  // Земля ВСЕГДА на одном и том же месте экрана (не зависит от camY)
+  // Привязываем к низу экрана
+  const groundScreenY = canvas.clientHeight * 0.82;
 
+  // ХОЛМЫ — только горизонтальный параллакс
   ctx.save();
   ctx.translate((-cam.x * 0.3) % 800, 0);
   for(let i = -1; i < 3; i++){
@@ -1140,6 +1224,7 @@ function drawBackground(){
   }
   ctx.restore();
 
+  // КУСТЫ — только горизонтальный параллакс
   ctx.save();
   ctx.translate((-cam.x * 0.4) % 600, 0);
   for(let i = -1; i < 4; i++){
@@ -1149,6 +1234,7 @@ function drawBackground(){
   }
   ctx.restore();
 
+  // ОБЛАКА — только горизонтальный параллакс
   ctx.save();
   ctx.translate((-cam.x * 0.5) % 700, 0);
   const cloudY = canvas.clientHeight * 0.12;
@@ -1584,10 +1670,14 @@ function updateFinishAnimation(dt){
   }
 }
 
-// ============ ИНИЦИАЛИЗАЦИЯ ============
+// ============ РАЗМЕР / DPR ============
 function resize(){
-  const baseDpr = Math.min(window.devicePixelRatio || 1, 1.5);
-  currentDpr = baseDpr;
+  // Для iPhone 11 и подобных — ограничиваем DPR
+  const rawDpr = window.devicePixelRatio || 1;
+  let dpr = Math.min(rawDpr, 2);
+  // На iPhone с большим экраном — снижаем чтобы не тормозило
+  if(window.innerWidth * window.innerHeight > 500000) dpr = Math.min(dpr, 1.5);
+  currentDpr = dpr;
   canvas.width = Math.floor(window.innerWidth * currentDpr);
   canvas.height = Math.floor(window.innerHeight * currentDpr);
   canvas.style.width = window.innerWidth + 'px';
@@ -1618,6 +1708,7 @@ function checkPerformance(t){
   }
 }
 
+// ============ HUD ============
 function updateHUD(){
   document.getElementById('hud-coins').textContent = '×' + String(coins).padStart(2, '0');
   document.getElementById('hud-score').textContent = String(score).padStart(6, '0');
@@ -1665,6 +1756,7 @@ function backToMenu(){
   }
 }
 
+// ============ ИНИЦИАЛИЗАЦИЯ ============
 function initGame(){
   level = buildLevel();
   player = new Player(3 * TILE, 11 * TILE);
@@ -1681,6 +1773,8 @@ function initGame(){
   flagOffset = 0;
   castleFlagRaised = false;
   castleFlagProgress = 0;
+  jumpBuffer.pressed = false;
+  jumpBuffer.timer = 0;
   document.getElementById('msg-screen').classList.remove('show');
   updateHUD();
   updateStarBar();
@@ -1696,6 +1790,8 @@ function respawn(){
   finish.active = false;
   finish.phase = 'none';
   flagOffset = 0;
+  jumpBuffer.pressed = false;
+  jumpBuffer.timer = 0;
   updateStarBar();
 }
 
@@ -1704,7 +1800,15 @@ function restartGame(){
   if(Music.isOn()){ Music.reset(); Music.start(); }
 }
 
-function getZoom(){ return canvas.clientWidth / (16 * TILE); }
+function getZoom(){
+  // Для iPhone 11 в ландшафте — показываем чуть больше тайлов
+  const aspect = canvas.clientWidth / canvas.clientHeight;
+  let visibleTiles = 16;
+  if(aspect > 2.0) visibleTiles = 15; // iPhone 11 19.5:9
+  else if(aspect > 1.8) visibleTiles = 16;
+  else visibleTiles = 17;
+  return canvas.clientWidth / (visibleTiles * TILE);
+}
 
 // ============ UPDATE ============
 function update(dt){
@@ -1734,9 +1838,10 @@ function update(dt){
   cam.x += (targetX - cam.x) * Math.min(1, dt * 6);
   cam.x = Math.max(0, Math.min(level.W * TILE - viewW, cam.x));
 
+  // Вертикальная камера — плавно поднимается когда игрок прыгает высоко
   const baseY = level.H * TILE - viewH;
   const playerScreenY = (player.y - camY) * zoom;
-  const threshold = canvas.clientHeight * 0.45;
+  const threshold = canvas.clientHeight * 0.4;
   let targetY = baseY;
   if(playerScreenY < threshold){
     const diff = (threshold - playerScreenY) / zoom;
@@ -1820,15 +1925,20 @@ function render(){
   const zoom = getZoom();
   const viewW = canvas.clientWidth / zoom;
   const viewH = canvas.clientHeight / zoom;
+
   ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+  // ФОН — рисуется в экранных координатах (небо не двигается)
   drawBackground();
+
   ctx.save();
   ctx.scale(zoom, zoom);
   ctx.translate(-cam.x, -camY);
+
   const startTx = Math.max(0, Math.floor(cam.x / TILE) - 1);
   const endTx = Math.min(level.W - 1, Math.ceil((cam.x + viewW) / TILE) + 1);
   const startTy = Math.max(0, Math.floor(camY / TILE) - 1);
   const endTy = Math.min(level.H - 1, Math.ceil((camY + viewH) / TILE) + 1);
+
   for(let ty = startTy; ty <= endTy; ty++){
     for(let tx = startTx; tx <= endTx; tx++){
       const t = level.grid[ty][tx];
@@ -1846,7 +1956,10 @@ function render(){
 
 // ============ LOOP ============
 function loop(t){
-  const dt = Math.min(0.033, (t - lastTime) / 1000 || 0.016);
+  // Ограничиваем dt, чтобы на слабых устройствах не было телепортаций
+  let dt = (t - lastTime) / 1000;
+  if(!isFinite(dt) || dt <= 0) dt = 0.016;
+  dt = Math.min(dt, 0.033); // Максимум 30мс на кадр (33 FPS)
   lastTime = t;
   update(dt);
   render();
@@ -1873,13 +1986,17 @@ function checkOrientation(){
 // ============ УПРАВЛЕНИЕ ============
 function bindButton(id, key){
   const el = document.getElementById(id);
+  if(!el) return;
   const down = (e) => {
     e.preventDefault();
     e.stopPropagation();
     initAudio();
     keys[key] = true;
     el.classList.add('active');
-    if(key === 'jump') jumpBuffer.pressed = true;
+    if(key === 'jump'){
+      jumpBuffer.pressed = true;
+      jumpBuffer.timer = JUMP_BUFFER_TIME;
+    }
   };
   const up = (e) => {
     e.preventDefault();
@@ -1915,7 +2032,10 @@ function setupControls(){
     e.preventDefault();
     if(e.repeat) return;
     keys[a] = true;
-    if(a === 'jump') jumpBuffer.pressed = true;
+    if(a === 'jump'){
+      jumpBuffer.pressed = true;
+      jumpBuffer.timer = JUMP_BUFFER_TIME;
+    }
     const btn = document.getElementById('btn-' + a);
     if(btn) btn.classList.add('active');
   }, true);
@@ -1979,6 +2099,3 @@ setupControls();
 initGame();
 requestAnimationFrame(loop);
 </script>
-
-</body>
-</html>
