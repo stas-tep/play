@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -284,8 +285,8 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
 </div>
 
 <div class="drift-buttons">
-    <div class="drift-btn" onclick="goBack()"><span class="drift-btn-icon">◀</span><div class="drift-btn-title">Назад</div></div>
-    <div class="drift-btn drift-btn-main" onclick="launchGame('mario')"><span class="drift-btn-icon">▶</span><div class="drift-btn-title">Играть</div></div>
+    <div class="drift-btn" onclick="openPanel('settings')"><span class="drift-btn-icon">⚙️</span><div class="drift-btn-title">Настройки</div></div>
+    <div class="drift-btn drift-btn-main" onclick="goBack()"><span class="drift-btn-icon">◀</span><div class="drift-btn-title">Назад</div></div>
     <div class="drift-btn" onclick="openPanel('faq')"><span class="drift-btn-icon">❓</span><div class="drift-btn-title">FAQ</div></div>
 </div>
 
@@ -445,11 +446,7 @@ function closePanel(name){
 /* Назад в розыгрыш */
 function goBack(){
   if(navigator.vibrate) navigator.vibrate(15);
-  if(document.referrer && document.referrer.includes('smolensk-cup-2026')){
-    history.back();
-  } else {
-    window.location.href = 'https://stas-tep.github.io/smolensk-cup-2026/';
-  }
+  window.location.href = 'https://stas-tep.github.io/smolensk-cup-2026/index.html';
 }
 
 /* Запуск игры */
@@ -550,3 +547,6 @@ document.addEventListener('touchend', (e) => {
 }, {passive:false});
 document.addEventListener('contextmenu', e => e.preventDefault());
 </script>
+
+</body>
+</html>
