@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -13,7 +12,6 @@
 html,body{height:100%;overscroll-behavior:none}
 body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100vh;min-height:100dvh;display:flex;justify-content:center;align-items:center;padding:20px;color:#fff}
 
-/* Рамка телефона */
 .phone-frame{
   width:375px;height:812px;
   background:linear-gradient(160deg,#0a1030 0%,#0d1440 50%,#080c28 100%);
@@ -35,7 +33,6 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
   .game-name{font-size:16px}
 }
 
-/* Аврора */
 .aurora{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
 .aurora-blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.55}
 .blob-1{width:280px;height:280px;background:radial-gradient(circle,#3b82f6 0%,transparent 70%);top:-80px;left:-80px;animation:float1 18s ease-in-out infinite}
@@ -45,16 +42,13 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
 @keyframes float2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-50px,-40px) scale(1.1)}}
 @keyframes float3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(30px,-50px) scale(1.2)}}
 
-/* Снег */
 .snow{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1}
 .snowflake{position:absolute;top:-20px;color:#fff;user-select:none;pointer-events:none;animation:fall linear infinite;opacity:0}
 @keyframes fall{0%{transform:translateY(-20px) translateX(0) rotate(0deg);opacity:0}10%{opacity:var(--opacity,.7)}90%{opacity:var(--opacity,.7)}100%{transform:translateY(880px) translateX(var(--drift,0)) rotate(360deg);opacity:0}}
 
-/* Экран */
 .screen{position:relative;z-index:3;height:100%;overflow-y:auto;padding:50px 18px 220px;display:flex;flex-direction:column;-webkit-overflow-scrolling:touch}
 .screen::-webkit-scrollbar{display:none}.screen{scrollbar-width:none}
 
-/* Заголовок */
 .title-section{text-align:center;margin-bottom:32px;position:relative;z-index:3}
 .title-label{font-size:10px;text-transform:uppercase;letter-spacing:5px;color:rgba(147,197,253,.75);font-weight:700;margin-bottom:14px;position:relative;display:inline-block;padding:0 30px}
 .title-label::before,.title-label::after{content:'';position:absolute;top:50%;width:20px;height:1px;background:linear-gradient(90deg,transparent,rgba(147,197,253,.5),transparent)}
@@ -63,7 +57,6 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
 @keyframes shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
 .title-sub{font-size:12px;font-weight:700;color:rgba(255,255,255,.65);letter-spacing:3px;text-transform:uppercase}
 
-/* Список игр */
 .games-list{display:flex;flex-direction:column;gap:0;margin-bottom:26px;position:relative;z-index:3}
 .game-row{display:flex;justify-content:space-between;align-items:center;padding:18px 4px;cursor:pointer;transition:.25s;text-decoration:none;color:inherit;border-bottom:1px solid rgba(147,197,253,.08);position:relative}
 .game-row:last-child{border-bottom:none}
@@ -81,17 +74,14 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
 .game-play-btn{font-size:10px;font-weight:800;color:rgba(147,197,253,.9);letter-spacing:1.5px;text-transform:uppercase;padding:7px 14px;background:rgba(147,197,253,.06);border:1px solid rgba(147,197,253,.3);border-radius:100px;transition:.25s;white-space:nowrap}
 .game-play-btn.coming{color:rgba(255,255,255,.5);border-color:rgba(255,255,255,.2);background:rgba(255,255,255,.04);letter-spacing:2px}
 
-/* Иконки внизу */
 .gifts-row{display:flex;justify-content:center;align-items:center;padding:0 18px;margin-bottom:20px;position:relative;z-index:3}
 .gift{font-size:80px;line-height:1;display:block;filter:drop-shadow(0 8px 12px rgba(0,0,0,.6)) drop-shadow(0 0 20px rgba(147,197,253,.5));animation:giftFloat 3s ease-in-out infinite;cursor:pointer;transition:.25s;user-select:none;position:relative}
 .gift:hover,.gift:active{filter:drop-shadow(0 12px 18px rgba(0,0,0,.7)) drop-shadow(0 0 30px rgba(147,197,253,.9));transform:scale(1.1)}
 @keyframes giftFloat{0%,100%{translate:0 0}50%{translate:0 -8px}}
 
-/* Сугробы */
 .snowdrift{position:absolute;bottom:0;left:0;right:0;height:200px;z-index:5;pointer-events:none;overflow:hidden}
 .snowdrift-svg{position:absolute;bottom:0;left:0;width:100%;height:100%;display:block;pointer-events:none}
 
-/* Кнопки на снегу */
 .drift-buttons{position:absolute;bottom:35px;left:0;right:0;display:flex;justify-content:center;align-items:flex-end;gap:9px;padding:0 26px;z-index:50;pointer-events:none}
 .drift-btn{flex:1;max-width:96px;padding:13px 6px;background:rgba(255,255,255,.98);border-radius:16px;text-align:center;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease;box-shadow:0 8px 20px rgba(0,0,0,.35),0 0 0 1px rgba(147,197,253,.4),inset 0 -3px 0 rgba(147,197,253,.3);position:relative;user-select:none;pointer-events:auto;touch-action:manipulation;-webkit-user-select:none;-webkit-touch-callout:none}
 @media (hover:hover){
@@ -107,7 +97,6 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
 .drift-btn-main .drift-btn-icon{font-size:17px}
 .drift-btn-main .drift-btn-title{color:#fff;font-size:12px}
 
-/* Панели */
 .panel-overlay{position:absolute;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:100;opacity:0;visibility:hidden;transition:.3s;border-radius:46px}
 .panel-overlay.active{opacity:1;visibility:visible}
 .panel{position:absolute;left:16px;right:16px;bottom:0;max-height:85%;background:linear-gradient(180deg,#101838 0%,#0a1030 100%);border-radius:32px 32px 46px 46px;border-top:1px solid rgba(147,197,253,.3);padding:20px 20px 40px;z-index:101;transform:translateY(100%);transition:transform .4s cubic-bezier(.34,1.2,.64,1);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
@@ -119,7 +108,6 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
 .panel-close{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(147,197,253,.2);display:flex;justify-content:center;align-items:center;cursor:pointer;font-size:14px;color:rgba(255,255,255,.7);transition:.2s;touch-action:manipulation}
 .panel-close:hover{background:rgba(239,68,68,.3);border-color:rgba(239,68,68,.5);color:#fff}
 
-/* FAQ */
 .faq-item{background:rgba(147,197,253,.06);border:1px solid rgba(147,197,253,.12);border-radius:18px;padding:16px 18px;margin-bottom:10px;cursor:pointer;transition:.25s;touch-action:manipulation}
 .faq-item:hover{background:rgba(147,197,253,.1);border-color:rgba(147,197,253,.3)}
 .faq-question{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:13px;font-weight:800;color:#fff;line-height:1.4;pointer-events:none}
@@ -128,7 +116,6 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
 .faq-answer{max-height:0;overflow:hidden;transition:max-height .3s ease,margin-top .3s ease;font-size:12.5px;color:rgba(255,255,255,.65);line-height:1.5}
 .faq-item.open .faq-answer{max-height:300px;margin-top:12px}
 
-/* Настройки */
 .setting-row{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:rgba(147,197,253,.06);border:1px solid rgba(147,197,253,.12);border-radius:16px;margin-bottom:10px}
 .setting-name{font-size:13px;font-weight:800;color:#fff;display:flex;align-items:center;gap:10px}
 .setting-name .ico{font-size:18px}
@@ -139,7 +126,6 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
 .setting-value{font-size:12px;font-weight:900;color:#93c5fd;letter-spacing:1px;padding:6px 12px;background:rgba(147,197,253,.1);border:1px solid rgba(147,197,253,.3);border-radius:10px;cursor:pointer}
 .setting-value:active{transform:scale(.95)}
 
-/* Обновления */
 .updates-intro{font-size:12px;color:rgba(255,255,255,.6);line-height:1.5;text-align:center;margin-bottom:20px;padding:0 6px}
 .update-item{position:relative;padding:16px 16px 16px 44px;background:rgba(147,197,253,.05);border:1px solid rgba(147,197,253,.12);border-radius:18px;margin-bottom:12px;transition:.25s}
 .update-item:hover{background:rgba(147,197,253,.08);border-color:rgba(147,197,253,.25)}
@@ -159,7 +145,6 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
 .update-list li strong{color:#facc15;font-weight:800}
 .update-list li em{color:#93c5fd;font-style:normal;font-weight:700}
 
-/* Анимация поворота перед игрой */
 #rotate-overlay{
   position:absolute;inset:0;z-index:999;
   background:linear-gradient(160deg,#0a1030,#1a2050,#05060f);
@@ -299,7 +284,7 @@ body{background:#05060f;font-family:'Segoe UI',Tahoma,sans-serif;min-height:100v
 </div>
 
 <div class="drift-buttons">
-    <div class="drift-btn" onclick="openPanel('settings')"><span class="drift-btn-icon">⚙️</span><div class="drift-btn-title">Настройки</div></div>
+    <div class="drift-btn" onclick="goBack()"><span class="drift-btn-icon">◀</span><div class="drift-btn-title">Назад</div></div>
     <div class="drift-btn drift-btn-main" onclick="launchGame('mario')"><span class="drift-btn-icon">▶</span><div class="drift-btn-title">Играть</div></div>
     <div class="drift-btn" onclick="openPanel('faq')"><span class="drift-btn-icon">❓</span><div class="drift-btn-title">FAQ</div></div>
 </div>
@@ -457,6 +442,16 @@ function closePanel(name){
   document.getElementById('panel-' + name).classList.remove('active');
 }
 
+/* Назад в розыгрыш */
+function goBack(){
+  if(navigator.vibrate) navigator.vibrate(15);
+  if(document.referrer && document.referrer.includes('smolensk-cup-2026')){
+    history.back();
+  } else {
+    window.location.href = 'https://stas-tep.github.io/smolensk-cup-2026/';
+  }
+}
+
 /* Запуск игры */
 function launchGame(id){
   const game = GAMES[id];
@@ -464,13 +459,13 @@ function launchGame(id){
 
   if(navigator.vibrate) navigator.vibrate(30);
 
-  // Портретная игра — сразу запускаем
+  /* Портретная игра — сразу запускаем */
   if(!game.landscape){
     window.location.href = game.file;
     return;
   }
 
-  // Ландшафтная — показываем анимацию поворота
+  /* Ландшафтная — показываем анимацию поворота */
   const overlay = document.getElementById('rotate-overlay');
   overlay.classList.remove('fade-out');
   overlay.classList.add('show');
@@ -555,6 +550,3 @@ document.addEventListener('touchend', (e) => {
 }, {passive:false});
 document.addEventListener('contextmenu', e => e.preventDefault());
 </script>
-
-</body>
-</html>
