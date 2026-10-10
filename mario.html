@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -9,11 +10,10 @@
 <title>Mario Run</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
-html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Segoe UI',-apple-system,sans-serif;overscroll-behavior:none;position:fixed}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:-apple-system,'Segoe UI',sans-serif;overscroll-behavior:none;position:fixed}
 body{inset:0}
 
-/* ЭКРАН ПОВОРОТА */
-#rotate{position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,#0a1030,#1a2050,#05060f);display:none;flex-direction:column;justify-content:center;align-items:center;color:#fff;padding:30px;text-align:center;padding-top:calc(30px + env(safe-area-inset-top))}
+#rotate{position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,#0a1030,#1a2050,#05060f);display:none;flex-direction:column;justify-content:center;align-items:center;color:#fff;padding:30px;text-align:center}
 #rotate.show{display:flex}
 .rotate-icon{font-size:80px;margin-bottom:30px;animation:rot 2.5s ease-in-out infinite;filter:drop-shadow(0 0 30px rgba(147,197,253,.6))}
 @keyframes rot{0%,20%{transform:rotate(0)}50%,70%{transform:rotate(-90deg)}100%{transform:rotate(-90deg)}}
@@ -21,98 +21,50 @@ body{inset:0}
 .rotate-text{font-size:13px;color:rgba(255,255,255,.65);line-height:1.6;max-width:280px}
 .rotate-hint{margin-top:30px;font-size:11px;color:rgba(147,197,253,.6);letter-spacing:2px;text-transform:uppercase;font-weight:700}
 
-/* CANVAS */
-#canvas{position:absolute;inset:0;width:100%;height:100%;display:block;outline:none;touch-action:none;-webkit-touch-callout:none;image-rendering:pixelated}
+#canvas{position:absolute;inset:0;width:100%;height:100%;display:block;outline:none;touch-action:none;image-rendering:pixelated}
 
-/* HUD — учитываем safe-area для iPhone */
-#hud{
-  position:absolute;top:0;left:0;right:0;
-  padding:10px 14px;
-  padding-top:calc(10px + env(safe-area-inset-top, 0px));
-  padding-left:calc(14px + env(safe-area-inset-left, 0px));
-  padding-right:calc(14px + env(safe-area-inset-right, 0px));
-  display:flex;justify-content:space-between;align-items:center;
-  z-index:20;pointer-events:none;
-}
+#hud{position:absolute;top:0;left:0;right:0;padding:10px 14px;padding-top:calc(10px + env(safe-area-inset-top));padding-left:calc(14px + env(safe-area-inset-left));padding-right:calc(14px + env(safe-area-inset-right));display:flex;justify-content:space-between;align-items:center;z-index:20;pointer-events:none}
 .hud-left{display:flex;gap:3px;align-items:center;pointer-events:auto}
 .heart{width:22px;height:22px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.6))}
 .hud-center{display:flex;gap:12px;align-items:center;color:#fff;font-weight:900;letter-spacing:1.5px;text-shadow:0 2px 6px rgba(0,0,0,.8);font-family:'Courier New',monospace;font-size:13px}
 .hud-item{display:flex;align-items:center;gap:4px}
 .hud-icon{font-size:14px}
 .hud-right{display:flex;gap:6px;align-items:center;pointer-events:auto}
-.hud-btn{width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,.5);border:2px solid rgba(255,255,255,.4);color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;font-weight:900;-webkit-appearance:none}
+.hud-btn{width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,.5);border:2px solid rgba(255,255,255,.4);color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;font-weight:900}
 .hud-btn:active{transform:scale(.9);background:rgba(0,0,0,.8)}
 .hud-btn.close{background:rgba(220,38,38,.6);border-color:rgba(248,113,113,.8)}
 
-/* STAR BAR */
-#star-bar{position:absolute;top:calc(54px + env(safe-area-inset-top, 0px));left:50%;transform:translateX(-50%);width:160px;height:7px;background:rgba(0,0,0,.5);border-radius:4px;overflow:hidden;z-index:20;display:none;border:1px solid rgba(255,255,255,.35)}
+#star-bar{position:absolute;top:calc(56px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:180px;height:8px;background:rgba(0,0,0,.5);border-radius:4px;overflow:hidden;z-index:20;display:none;border:1px solid rgba(255,255,255,.35)}
 #star-bar.show{display:block}
 #star-fill{height:100%;background:linear-gradient(90deg,#facc15,#f472b6,#60a5fa,#4ade80);background-size:200% 100%;animation:rb .8s linear infinite;border-radius:4px}
 @keyframes rb{0%{background-position:0% 50%}100%{background-position:200% 50%}}
 
-/* КНОПКИ УПРАВЛЕНИЯ — учитывают safe-area iPhone */
 #controls{position:absolute;inset:0;z-index:20;pointer-events:none}
-.ctrl{
-  position:absolute;pointer-events:auto;
-  width:70px;height:70px;border-radius:50%;
-  background:rgba(255,255,255,.15);
-  border:2px solid rgba(255,255,255,.5);
-  display:flex;align-items:center;justify-content:center;
-  color:#fff;font-size:26px;font-weight:900;
-  cursor:pointer;touch-action:none;
-  transition:transform .08s,background .08s;
-  text-shadow:0 2px 4px rgba(0,0,0,.5);
-  -webkit-appearance:none;-webkit-user-select:none;
-}
-.ctrl.active{transform:scale(.88);background:rgba(255,255,255,.45)}
-#btn-left{
-  left:calc(16px + env(safe-area-inset-left, 0px));
-  bottom:calc(16px + env(safe-area-inset-bottom, 0px));
-}
-#btn-right{
-  left:calc(100px + env(safe-area-inset-left, 0px));
-  bottom:calc(16px + env(safe-area-inset-bottom, 0px));
-}
-#btn-jump{
-  right:calc(16px + env(safe-area-inset-right, 0px));
-  bottom:calc(16px + env(safe-area-inset-bottom, 0px));
-  width:96px;height:96px;font-size:42px;
-  background:rgba(239,68,68,.55);
-  border-color:rgba(248,113,113,.9);
-  font-weight:900;line-height:1;
-}
+.ctrl{position:absolute;pointer-events:auto;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;color:#fff;font-size:26px;font-weight:900;cursor:pointer;touch-action:none;transition:transform .08s,background .08s;text-shadow:0 2px 4px rgba(0,0,0,.5)}
+.ctrl.active{transform:scale(.88);background:rgba(255,255,255,.4)}
+#btn-left{left:calc(16px + env(safe-area-inset-left));bottom:calc(16px + env(safe-area-inset-bottom))}
+#btn-right{left:calc(100px + env(safe-area-inset-left));bottom:calc(16px + env(safe-area-inset-bottom))}
+#btn-jump{right:calc(16px + env(safe-area-inset-right));bottom:calc(16px + env(safe-area-inset-bottom));width:96px;height:96px;font-size:42px;background:rgba(239,68,68,.5);border-color:rgba(248,113,113,.9);font-weight:900;line-height:1}
 
-/* ПОДСКАЗКИ ПК */
-#kb-hints{position:absolute;bottom:calc(12px + env(safe-area-inset-bottom, 0px));left:50%;transform:translateX(-50%);z-index:25;display:flex;gap:12px;color:rgba(255,255,255,.7);font-size:10px;font-family:'Courier New',monospace;pointer-events:none;opacity:0;transition:opacity .5s;flex-wrap:wrap;justify-content:center}
+#kb-hints{position:absolute;bottom:calc(12px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:25;display:flex;gap:12px;color:rgba(255,255,255,.7);font-size:10px;font-family:'Courier New',monospace;pointer-events:none;opacity:0;transition:opacity .5s;flex-wrap:wrap;justify-content:center}
 #kb-hints.show{opacity:1}
 #kb-hints .k{display:inline-block;padding:2px 5px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.3);border-radius:4px;margin-right:2px;font-weight:700;color:#fff}
 
-/* ЭКРАН СООБЩЕНИЙ */
-#msg-screen{position:absolute;inset:0;z-index:50;display:none;flex-direction:column;justify-content:center;align-items:center;background:rgba(0,0,0,.85);color:#fff;text-align:center;padding:30px;padding-top:calc(30px + env(safe-area-inset-top, 0px));padding-bottom:calc(30px + env(safe-area-inset-bottom, 0px))}
+#msg-screen{position:absolute;inset:0;z-index:50;display:none;flex-direction:column;justify-content:center;align-items:center;background:rgba(0,0,0,.85);color:#fff;text-align:center;padding:30px}
 #msg-screen.show{display:flex}
 .msg-icon{font-size:72px;margin-bottom:20px;filter:drop-shadow(0 0 25px rgba(250,204,21,.6))}
 .msg-title{font-size:36px;font-weight:900;letter-spacing:4px;margin-bottom:12px;background:linear-gradient(110deg,#fff,#facc15);-webkit-background-clip:text;background-clip:text;color:transparent;text-transform:uppercase}
 .msg-sub{font-size:14px;color:rgba(255,255,255,.75);line-height:1.5;margin-bottom:28px}
-.msg-btn{padding:15px 40px;border-radius:14px;background:linear-gradient(135deg,#ef4444,#dc2626);border:none;color:#fff;font-family:inherit;font-weight:900;font-size:14px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;touch-action:manipulation;margin:0 6px;-webkit-appearance:none}
-.msg-btn.blue{background:linear-gradient(135deg,#3b82f6,#2563eb)}
+.msg-btn{padding:15px 40px;border-radius:14px;background:linear-gradient(135deg,#ef4444,#dc2626);border:none;color:#fff;font-family:inherit;font-weight:900;font-size:14px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;box-shadow:0 10px 25px rgba(239,68,68,.5);touch-action:manipulation;margin:0 6px}
+.msg-btn.green{background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 10px 25px rgba(16,185,129,.5)}
 .msg-btn:active{transform:scale(.95)}
 .msg-buttons{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 
-/* iPhone в ландшафте — уменьшаем кнопки */
-@media (max-height:430px){
-  .ctrl{width:64px;height:64px;font-size:24px}
-  #btn-jump{width:88px;height:88px;font-size:38px}
-  #btn-right{left:calc(92px + env(safe-area-inset-left, 0px))}
+@media (max-height:420px){
+  .ctrl{width:60px;height:60px;font-size:22px}
+  #btn-jump{width:80px;height:80px;font-size:34px}
   .hud-btn{width:34px;height:34px;font-size:14px}
-  .heart{width:20px;height:20px}
-  .hud-center{font-size:12px;gap:8px}
-}
-@media (max-height:380px){
-  .ctrl{width:56px;height:56px;font-size:20px}
-  #btn-jump{width:78px;height:78px;font-size:32px}
-  #btn-right{left:calc(80px + env(safe-area-inset-left, 0px))}
-  #btn-left{left:calc(10px + env(safe-area-inset-left, 0px))}
-  .heart{width:16px;height:16px}
+  .heart{width:18px;height:18px}
 }
 </style>
 </head>
@@ -154,18 +106,19 @@ body{inset:0}
 </div>
 
 <div id="msg-screen">
-  <div class="msg-icon" id="msg-icon">🎉</div>
+  <div class="msg-icon" id="msg-icon">🏆</div>
   <div class="msg-title" id="msg-title">ПОБЕДА!</div>
   <div class="msg-sub" id="msg-sub">Ты прошёл уровень!</div>
   <div class="msg-buttons">
     <button class="msg-btn" onclick="restartGame()">ЗАНОВО</button>
-    <button class="msg-btn blue" onclick="backToMenu()">В МЕНЮ</button>
+    <button class="msg-btn close" onclick="backToMenu()">В МЕНЮ</button>
   </div>
 </div>
 
 <script>
 'use strict';
 
+// ============ КОНСТАНТЫ ============
 const TILE = 40;
 const GRAVITY = 2400;
 const JUMP_VELOCITY = -780;
@@ -175,8 +128,9 @@ const ACCEL = 2200;
 const FRICTION = 1900;
 const AIR_ACCEL = 1300;
 const STAR_DURATION = 8;
-const JUMP_BUFFER_TIME = 0.15; // 150мс — буфер прыжка для мобильных
+const JUMP_BUFFER_TIME = 0.15;
 
+// Наземная палитра (классический SMB)
 const C = {
   sky:'#5C94FC',
   groundMain:'#C84C0C', groundTop:'#F8B800', groundDark:'#7C2400',
@@ -209,7 +163,6 @@ let lastTime = 0;
 let currentDpr = 1;
 const particles = [];
 const keys = {left:false, right:false, jump:false};
-// ДЖИТТЕР-БУФЕР прыжка — сохраняем тап даже после отпускания
 const jumpBuffer = {pressed:false, timer:0};
 
 const finish = {
@@ -304,75 +257,136 @@ function toggleMusic(){
   document.getElementById('audio-btn').textContent = on ? '🔊' : '🔇';
 }
 
-// ============ УРОВЕНЬ ============
+// ============================================================
+// УРОВЕНЬ 1 — наземный (исправленные высоты)
+//
+// Mario прыгает с земли (12-й ряд) на 6.5 тайлов → до 6-го ряда
+// Все объекты достижимы с земли:
+// - Трубы: topRow >= 10 (макс 3 тайла)
+// - Блоки ?: 8-9 ряд (4-5 тайлов от земли)
+// - Платформы: 8-10 ряд
+// - Монеты: 10-11 ряд
+// ============================================================
 function buildLevel(){
   const W = 260, H = 15;
   const g = [];
   for(let y = 0; y < H; y++) g[y] = new Array(W).fill('.');
+
+  // Земля
   for(let x = 0; x < W; x++){ g[13][x] = 'G'; g[14][x] = 'G'; }
 
-  [[58,2],[90,2],[130,2],[175,2]].forEach(([s,l])=>{
+  // Ямы — 2-3 тайла (перепрыгивается легко)
+  [[58,2],[90,2],[130,3],[175,2]].forEach(([s,l])=>{
     for(let x = s; x < s+l; x++){ g[13][x]='.'; g[14][x]='.'; }
   });
 
   const set = (x,y,t) => { if(g[y] && x >= 0 && x < W) g[y][x] = t; };
   const row = (x1, x2, y, t) => { for(let x = x1; x <= x2; x++) set(x, y, t); };
 
+  // Труба с защитой: topRow не выше 10 (макс высота 3 тайла)
   function pipe(x, topRow, h){
+    if(topRow < 10) topRow = 10;
     g[topRow][x] = '['; g[topRow][x+1] = ']';
     for(let y = topRow+1; y < topRow+h; y++){ g[y][x]='{'; g[y][x+1]='}'; }
   }
 
-  pipe(20, 11, 2);
-  set(15, 9, '?');
+  // === СЕКЦИЯ 1: старт ===
+  pipe(20, 11, 2);              // труба 2 тайла
+  set(15, 9, '?');              // блок ? на 9-м ряду (4 тайла от земли)
+  set(20, 5, 'M');              // гриб высоко, но достаётся прыжком с трубы? Нет. Ставим ниже.
+
+  // Убираем гриб на 5-м ряду, ставим его в блок
+  g[5][20] = '.';
+  set(22, 9, '?');              // рядом ещё один блок
+
+  // === СЕКЦИЯ 2: блоки ? ===
   set(28, 9, '?'); set(29, 9, 'B'); set(30, 9, '?');
-  set(29, 5, 'M');
+  row(28, 30, 8, 'o');          // монеты над блоками
+
+  // === СЕКЦИЯ 3: труба 3 тайла ===
   pipe(38, 10, 3);
+  set(36, 9, '?');
+
+  // === СЕКЦИЯ 4: пирамида ===
   set(46, 12, 'G'); set(47, 11, 'G'); set(48, 10, 'G');
   set(49, 11, 'G'); set(50, 12, 'G');
+
+  // === СЕКЦИЯ 5: блоки ? над землёй ===
   set(54, 9, '?'); set(55, 9, 'B'); set(56, 9, '?');
   row(54, 56, 8, 'o');
-  row(62, 64, 9, 'B');
+
+  // === СЕКЦИЯ 6: высокие платформы ===
+  row(62, 64, 9, 'B');          // 9-й ряд (достижимо)
   set(62, 9, '?'); set(64, 9, '?');
-  set(63, 8, 'S');
+  set(63, 8, 'S');              // звезда на 8-м (прыжок с земли)
+
+  // === СЕКЦИЯ 7: труба 3 тайла ===
   pipe(70, 10, 3);
   set(74, 12, 'G'); set(75, 11, 'G'); set(76, 10, 'G');
-  row(80, 82, 10, 'B');
-  row(84, 86, 9, 'B');
+
+  // === СЕКЦИЯ 8: платформы на высоте ===
+  row(80, 82, 10, 'B');         // 10-й ряд (2-3 тайла от земли)
+  row(84, 86, 9, 'B');          // 9-й ряд
   set(81, 10, '?'); set(85, 9, '?');
+
+  // === СЕКЦИЯ 9: пирамида ===
   for(let i = 0; i < 3; i++) set(94 + i, 12 - i, 'G');
   row(97, 99, 10, 'G');
   for(let i = 0; i < 3; i++) set(100 + i, 11 + i, 'G');
-  row(106, 112, 9, 'B');
+
+  // === СЕКЦИЯ 10: навес из блоков ===
+  row(106, 112, 9, 'B');        // 9-й ряд
   set(107, 9, '?'); set(109, 9, 'B'); set(111, 9, '?');
-  row(107, 111, 8, 'o');
+  row(107, 111, 8, 'o');        // монеты над навесом
+
+  // === СЕКЦИЯ 11: ступени ===
   for(let i = 0; i < 4; i++) set(116 + i, 12 - i, 'G');
   row(120, 122, 9, 'G');
-  pipe(121, 7, 2);
+  pipe(121, 7, 2);              // труба на платформе — стоит на 9-м ряду, topRow 7 → высота 2
+
+  // Спуск
   for(let i = 0; i < 4; i++) set(124 + i, 9 + i, 'G');
+
+  // === СЕКЦИЯ 12: блоки на земле ===
   set(134, 9, '?'); set(135, 9, 'B'); set(136, 9, '?'); set(137, 9, 'B');
   row(134, 137, 8, 'o');
-  row(142, 146, 8, 'B');
+
+  // === СЕКЦИЯ 13: навес ===
+  row(142, 146, 8, 'B');        // 8-й ряд (прыжок с земли — 4 тайла)
   set(143, 8, '?'); set(145, 8, '?');
+
+  // === СЕКЦИЯ 14: труба 2 тайла + пирамида ===
   pipe(152, 11, 2);
   for(let i = 0; i < 3; i++) set(158 + i, 12 - i, 'G');
   for(let i = 0; i < 3; i++) set(161 + i, 10 + i, 'G');
-  row(168, 170, 10, 'B');
-  row(172, 174, 9, 'B');
+
+  // === СЕКЦИЯ 15: платформы через яму ===
+  row(168, 170, 10, 'B');       // 10-й ряд
+  row(172, 174, 9, 'B');        // 9-й ряд
+
+  // === СЕКЦИЯ 16: платформа с грибом ===
   row(180, 183, 9, 'B');
   set(181, 9, 'M'); set(182, 9, '?');
+
+  // === СЕКЦИЯ 17: пирамиды ===
   for(let i = 0; i < 4; i++) set(190 + i, 12 - i, 'G');
   for(let i = 0; i < 4; i++) set(194 + i, 9 + i, 'G');
+
+  // === СЕКЦИЯ 18: финальные блоки ===
   row(202, 208, 9, 'B');
   set(203, 9, '?'); set(205, 9, '?'); set(207, 9, '?');
   row(203, 207, 8, 'o');
+
+  // === ФИНАЛ: большая лестница ===
   for(let i = 0; i < 8; i++){
     row(215 + i, 223, 12 - i, 'G');
   }
   row(223, 226, 5, 'G');
 
+  // Доп. монеты — все на 10-11 ряду
   [[8,10],[9,10],[10,10],[42,10],[43,10],[66,10],[67,10],[96,9],[97,9],[98,9]].forEach(([x,y]) => set(x,y,'o'));
 
+  // === ВРАГИ ===
   const candidateEnemies = [
     {x:18, y:12, type:'goomba'},
     {x:26, y:12, type:'goomba'},
@@ -458,12 +472,10 @@ class Player {
   setStar(){ this.star = STAR_DURATION; sfx.star(); Music.tempo(1.6); }
 
   update(dt){
-    // Тик буфера прыжка
     if(jumpBuffer.timer > 0){
       jumpBuffer.timer -= dt;
       if(jumpBuffer.timer <= 0) jumpBuffer.pressed = false;
     }
-
     if(this.dead){
       this.deadTimer += dt;
       this.vy += GRAVITY * dt;
@@ -515,7 +527,6 @@ class Player {
     }
     this.vx = Math.max(-maxSpeed, Math.min(maxSpeed, this.vx));
 
-    // ПРЫЖОК — с буфером
     if(jumpBuffer.pressed && this.onGround){
       this.vy = JUMP_VELOCITY * (this.isBig ? 1.05 : 1);
       this.onGround = false;
@@ -526,21 +537,13 @@ class Player {
       sfx.jump();
     }
 
-    // УДЕРЖАНИЕ ПРЫЖКА — переменная высота
-    // На мобильных тап короткий, поэтому даём минимальное время удержания
     if(this.jumpHeld){
       this.jumpHoldTime += dt;
-      // Если игрок отпустил кнопку ИЛИ время удержания меньше 0.08с — обрезаем высоту
       if(!keys.jump && this.jumpHoldTime > 0.08){
-        if(this.vy < 0){
-          this.vy *= 0.5;
-        }
+        if(this.vy < 0) this.vy *= 0.5;
         this.jumpHeld = false;
       }
-      // Максимальное время удержания — 0.5с
-      if(this.jumpHoldTime > 0.5){
-        this.jumpHeld = false;
-      }
+      if(this.jumpHoldTime > 0.5) this.jumpHeld = false;
     }
 
     this.vy += GRAVITY * dt;
@@ -862,9 +865,7 @@ class Enemy {
       }
     }
   }
-  isTouchable(){
-    return this.alive && !this.dying && this.squished <= 0 && this.deathTimer <= 0;
-  }
+  isTouchable(){ return this.alive && !this.dying && this.squished <= 0 && this.deathTimer <= 0; }
   stomp(){
     if(this.type === 'koopa' && !this.shell){
       this.shell = true; this.vx = 0; this.h = 22; this.y += 8;
@@ -972,22 +973,12 @@ function drawKoopa(ctx, frame, shell){
     ctx.beginPath(); ctx.ellipse(0, -5, 5.5, 4, 0, 0, Math.PI*2); ctx.fill();
     ctx.strokeStyle = '#005000'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.ellipse(0, -5, 8, 6, 0, 0, Math.PI*2); ctx.stroke();
-    ctx.strokeStyle = '#005000'; ctx.lineWidth = 0.6;
-    ctx.beginPath();
-    ctx.moveTo(-3, -5); ctx.lineTo(3, -5);
-    ctx.moveTo(-2, -7); ctx.lineTo(2, -7);
-    ctx.moveTo(-2, -3); ctx.lineTo(2, -3);
-    ctx.stroke();
     return;
   }
   const leg = frame === 0 ? -1 : 1;
   ctx.fillStyle = '#F8B800';
   ctx.fillRect(-5 + leg, -2, 3, 2);
   ctx.fillRect(2 - leg, -2, 3, 2);
-  ctx.strokeStyle = '#7C2400';
-  ctx.lineWidth = 0.5;
-  ctx.strokeRect(-5 + leg, -2, 3, 2);
-  ctx.strokeRect(2 - leg, -2, 3, 2);
   ctx.fillStyle = '#00A800';
   ctx.fillRect(-5, -9, 10, 7);
   ctx.strokeStyle = '#005000';
@@ -995,12 +986,6 @@ function drawKoopa(ctx, frame, shell){
   ctx.strokeRect(-5, -9, 10, 7);
   ctx.fillStyle = '#58D854';
   ctx.fillRect(-4, -8, 8, 5);
-  ctx.strokeStyle = '#005000';
-  ctx.lineWidth = 0.5;
-  ctx.beginPath();
-  ctx.moveTo(-4, -6); ctx.lineTo(4, -6);
-  ctx.moveTo(0, -8); ctx.lineTo(0, -3);
-  ctx.stroke();
   ctx.fillStyle = '#F8B800';
   ctx.fillRect(3, -12, 5, 5);
   ctx.strokeStyle = '#7C2400';
@@ -1059,11 +1044,7 @@ class PowerUp {
     this.rot = 0;
   }
   update(dt){
-    if(this.spawnTimer < 0.5){
-      this.spawnTimer += dt;
-      this.y -= 60 * dt;
-      return;
-    }
+    if(this.spawnTimer < 0.5){ this.spawnTimer += dt; this.y -= 60 * dt; return; }
     this.vy += GRAVITY * dt;
     if(this.vy > MAX_FALL) this.vy = MAX_FALL;
     this.x += this.vx * dt;
@@ -1203,18 +1184,14 @@ function drawParticles(ctx){
   });
 }
 
-// ============ ФОН — НЕБО НЕ ДВИГАЕТСЯ ============
+// ============ ФОН ============
 function drawBackground(){
-  // Небо — всегда от 0,0 до clientWidth/clientHeight (НЕ зависит от камеры)
   ctx.fillStyle = C.sky;
   ctx.fillRect(0, 0, canvas.clientWidth, canvas.clientHeight);
 
   const zoom = getZoom();
-  // Земля ВСЕГДА на одном и том же месте экрана (не зависит от camY)
-  // Привязываем к низу экрана
   const groundScreenY = canvas.clientHeight * 0.82;
 
-  // ХОЛМЫ — только горизонтальный параллакс
   ctx.save();
   ctx.translate((-cam.x * 0.3) % 800, 0);
   for(let i = -1; i < 3; i++){
@@ -1224,7 +1201,6 @@ function drawBackground(){
   }
   ctx.restore();
 
-  // КУСТЫ — только горизонтальный параллакс
   ctx.save();
   ctx.translate((-cam.x * 0.4) % 600, 0);
   for(let i = -1; i < 4; i++){
@@ -1234,7 +1210,6 @@ function drawBackground(){
   }
   ctx.restore();
 
-  // ОБЛАКА — только горизонтальный параллакс
   ctx.save();
   ctx.translate((-cam.x * 0.5) % 700, 0);
   const cloudY = canvas.clientHeight * 0.12;
@@ -1652,9 +1627,7 @@ function updateFinishAnimation(dt){
     player.vy += 100 * dt;
     if(finish.timer > 0.5){
       player.hidden = true;
-      if(!castleFlagRaised){
-        castleFlagRaised = true;
-      }
+      if(!castleFlagRaised) castleFlagRaised = true;
       if(finish.timer > 1.2 && castleFlagProgress < 1){
         castleFlagProgress = Math.min(1, castleFlagProgress + dt * 1.5);
       }
@@ -1664,20 +1637,30 @@ function updateFinishAnimation(dt){
         sfx.win();
         score += 1000;
         updateHUD();
-        showMsg('🏆','ПОБЕДА!', `Монет: ${coins} · Очков: ${score}`);
+        setTimeout(() => {
+          showMsg('🏆','УРОВЕНЬ 1 ПРОЙДЕН!', `Монет: ${coins} · Очков: ${score}`);
+          // Кнопка "Следующий уровень"
+          setTimeout(() => {
+            const btns = document.querySelector('.msg-buttons');
+            if(btns && !document.getElementById('next-btn')){
+              const btn = document.createElement('button');
+              btn.id = 'next-btn';
+              btn.className = 'msg-btn green';
+              btn.textContent = '▶ УРОВЕНЬ 2';
+              btn.onclick = () => { window.location.href = 'mario2.html'; };
+              btns.insertBefore(btn, btns.firstChild);
+            }
+          }, 100);
+        }, 500);
       }
     }
   }
 }
 
-// ============ РАЗМЕР / DPR ============
+// ============ ИНИЦИАЛИЗАЦИЯ ============
 function resize(){
-  // Для iPhone 11 и подобных — ограничиваем DPR
-  const rawDpr = window.devicePixelRatio || 1;
-  let dpr = Math.min(rawDpr, 2);
-  // На iPhone с большим экраном — снижаем чтобы не тормозило
-  if(window.innerWidth * window.innerHeight > 500000) dpr = Math.min(dpr, 1.5);
-  currentDpr = dpr;
+  const baseDpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  currentDpr = baseDpr;
   canvas.width = Math.floor(window.innerWidth * currentDpr);
   canvas.height = Math.floor(window.innerHeight * currentDpr);
   canvas.style.width = window.innerWidth + 'px';
@@ -1686,29 +1669,6 @@ function resize(){
   ctx.imageSmoothingEnabled = false;
 }
 
-let frameCount = 0, lastFpsCheck = 0, lowFpsFrames = 0;
-function checkPerformance(t){
-  frameCount++;
-  if(t - lastFpsCheck > 1000){
-    const fps = frameCount;
-    frameCount = 0;
-    lastFpsCheck = t;
-    if(fps < 40){
-      lowFpsFrames++;
-      if(lowFpsFrames > 2 && currentDpr > 1){
-        currentDpr = 1;
-        canvas.width = Math.floor(window.innerWidth * currentDpr);
-        canvas.height = Math.floor(window.innerHeight * currentDpr);
-        ctx.setTransform(currentDpr, 0, 0, currentDpr, 0, 0);
-        ctx.imageSmoothingEnabled = false;
-      }
-    } else {
-      lowFpsFrames = 0;
-    }
-  }
-}
-
-// ============ HUD ============
 function updateHUD(){
   document.getElementById('hud-coins').textContent = '×' + String(coins).padStart(2, '0');
   document.getElementById('hud-score').textContent = String(score).padStart(6, '0');
@@ -1756,7 +1716,6 @@ function backToMenu(){
   }
 }
 
-// ============ ИНИЦИАЛИЗАЦИЯ ============
 function initGame(){
   level = buildLevel();
   player = new Player(3 * TILE, 11 * TILE);
@@ -1800,15 +1759,7 @@ function restartGame(){
   if(Music.isOn()){ Music.reset(); Music.start(); }
 }
 
-function getZoom(){
-  // Для iPhone 11 в ландшафте — показываем чуть больше тайлов
-  const aspect = canvas.clientWidth / canvas.clientHeight;
-  let visibleTiles = 16;
-  if(aspect > 2.0) visibleTiles = 15; // iPhone 11 19.5:9
-  else if(aspect > 1.8) visibleTiles = 16;
-  else visibleTiles = 17;
-  return canvas.clientWidth / (visibleTiles * TILE);
-}
+function getZoom(){ return canvas.clientWidth / (16 * TILE); }
 
 // ============ UPDATE ============
 function update(dt){
@@ -1824,7 +1775,6 @@ function update(dt){
     cam.x = Math.max(0, Math.min(level.W * TILE - viewW, cam.x));
     return;
   }
-
   if(won) return;
 
   player.update(dt);
@@ -1838,10 +1788,9 @@ function update(dt){
   cam.x += (targetX - cam.x) * Math.min(1, dt * 6);
   cam.x = Math.max(0, Math.min(level.W * TILE - viewW, cam.x));
 
-  // Вертикальная камера — плавно поднимается когда игрок прыгает высоко
   const baseY = level.H * TILE - viewH;
   const playerScreenY = (player.y - camY) * zoom;
-  const threshold = canvas.clientHeight * 0.4;
+  const threshold = canvas.clientHeight * 0.45;
   let targetY = baseY;
   if(playerScreenY < threshold){
     const diff = (threshold - playerScreenY) / zoom;
@@ -1925,20 +1874,15 @@ function render(){
   const zoom = getZoom();
   const viewW = canvas.clientWidth / zoom;
   const viewH = canvas.clientHeight / zoom;
-
   ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
-  // ФОН — рисуется в экранных координатах (небо не двигается)
   drawBackground();
-
   ctx.save();
   ctx.scale(zoom, zoom);
   ctx.translate(-cam.x, -camY);
-
   const startTx = Math.max(0, Math.floor(cam.x / TILE) - 1);
   const endTx = Math.min(level.W - 1, Math.ceil((cam.x + viewW) / TILE) + 1);
   const startTy = Math.max(0, Math.floor(camY / TILE) - 1);
   const endTy = Math.min(level.H - 1, Math.ceil((camY + viewH) / TILE) + 1);
-
   for(let ty = startTy; ty <= endTy; ty++){
     for(let tx = startTx; tx <= endTx; tx++){
       const t = level.grid[ty][tx];
@@ -1956,14 +1900,12 @@ function render(){
 
 // ============ LOOP ============
 function loop(t){
-  // Ограничиваем dt, чтобы на слабых устройствах не было телепортаций
   let dt = (t - lastTime) / 1000;
   if(!isFinite(dt) || dt <= 0) dt = 0.016;
-  dt = Math.min(dt, 0.033); // Максимум 30мс на кадр (33 FPS)
+  dt = Math.min(dt, 0.033);
   lastTime = t;
   update(dt);
   render();
-  checkPerformance(t);
   requestAnimationFrame(loop);
 }
 
@@ -1988,8 +1930,7 @@ function bindButton(id, key){
   const el = document.getElementById(id);
   if(!el) return;
   const down = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault(); e.stopPropagation();
     initAudio();
     keys[key] = true;
     el.classList.add('active');
@@ -1999,8 +1940,7 @@ function bindButton(id, key){
     }
   };
   const up = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault(); e.stopPropagation();
     keys[key] = false;
     el.classList.remove('active');
   };
@@ -2084,6 +2024,7 @@ function setupControls(){
 // ============ СТАРТ ============
 window.addEventListener('resize', () => { resize(); checkOrientation(); });
 window.addEventListener('orientationchange', () => setTimeout(() => { resize(); checkOrientation(); }, 200));
+
 function firstInteraction(){
   initAudio();
   if(!gameOver && !won && !paused && Music.isOn()) Music.start();
@@ -2091,11 +2032,16 @@ function firstInteraction(){
 window.addEventListener('touchstart', firstInteraction, {once:true, capture:true});
 window.addEventListener('click', firstInteraction, {once:true, capture:true});
 window.addEventListener('keydown', firstInteraction, {once:true, capture:true});
+
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('gesturestart', e => e.preventDefault());
+
 resize();
 checkOrientation();
 setupControls();
 initGame();
 requestAnimationFrame(loop);
 </script>
+
+</body>
+</html>
